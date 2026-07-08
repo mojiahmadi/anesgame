@@ -164,9 +164,7 @@ header h1 {
     min-height: 50vh;
 }
 
-/* ================= صفحه فرم ورود (نسخه 2026) ================= */
 
-/* ۱. ارتقای کارت لاگین به ضخامت شیشه‌ای عمیق */
 .login-card {
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(40px) saturate(180%);
@@ -183,11 +181,11 @@ header h1 {
     animation: popIn 0.6s cubic-bezier(.175,.885,.32,1.275);
 }
 
-/* حذف خط رنگی قدیمی از پایین کارت */
+
 .login-card::before { display: none; }
 
 .login-card h2 {
-    color: white; /* رنگ تیتر سفید درخشان */
+    color: white; 
     font-weight: 900;
     margin-bottom: 8px;
     font-size: 26px;
@@ -200,7 +198,7 @@ header h1 {
     line-height: 1.6;
 }
 
-/* ۲. آیکون فرم لاگین (تغییر از دایره تخت به مربع شیشه‌ای مثل لابی) */
+
 .login-icon {
     margin: 0 auto 24px;
     background: rgba(255, 255, 255, 0.05);
@@ -217,11 +215,11 @@ header h1 {
 
 .login-icon svg { width: 36px; height: 36px; }
 
-/* ۳. ارتقای فیلدهای ورودی نام و موبایل (هماهنگ با پنل ادمین) */
+
 .login-input {
     width: 100%;
     padding: 16px 20px;
-    background: rgba(0, 0, 0, 0.18); /* پس‌زمینه تیره برای خوانایی عالی */
+    background: rgba(0, 0, 0, 0.18); 
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 16px;
     font-size: 15px;
@@ -242,7 +240,7 @@ header h1 {
     background: rgba(0, 0, 0, 0.3);
 }
 
-/* ۴. دکمه لاگین سیال با افکت نوری */
+
 .btn-login {
     background: linear-gradient(135deg, #920F2A, #D61A40); 
     color: white;
@@ -1167,7 +1165,7 @@ header h1 {
 .user-menu-logout:hover { background: rgba(255,59,92,.22); }
 .user-menu-logout svg { width: 16px; height: 16px; }
 
-/* آواتار داخل دکمه اصلی منو */
+
 .user-menu-btn-avatar {
     width: 100%;
     height: 100%;
@@ -1178,7 +1176,7 @@ header h1 {
     justify-content: center;
 }
 
-/* دکمه آواتار داخل دراپ‌داون */
+
 .user-menu-avatar-btn {
     position: relative;
     border: none;
@@ -1386,7 +1384,7 @@ header h1 {
 .settings-row-text strong { display: block; font-size: 14px; color: var(--slate-900); font-weight: 800; }
 .settings-row-text span { display: block; font-size: 12px; color: var(--slate-500); margin-top: 2px; }
 
-/* سوییچ روشن/خاموش */
+
 .toggle-switch {
     position: relative;
     width: 48px;
@@ -1445,7 +1443,7 @@ header h1 {
     line-height: 1.6;
 }
 
-/* انیمیشن‌های عمومی (popIn برای مودال‌ها و کارت ورود، shake برای خطا) */
+
 @keyframes popIn {
     0%   { opacity: 0; transform: scale(.9) translateY(10px); }
     100% { opacity: 1; transform: scale(1) translateY(0); }
@@ -1459,7 +1457,7 @@ header h1 {
     80%      { transform: translateX(4px); }
 }
 
-/* استایل‌های بخش افتخارات (Achievements) */
+
 .achievements-modal-content {
     max-width: 500px;
 }
@@ -1474,7 +1472,7 @@ header h1 {
     padding: 10px;
 }
 
-/* اسکرول‌بار سفارشی برای لیست مدال‌ها */
+
 .achievements-grid::-webkit-scrollbar { width: 6px; }
 .achievements-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
 .achievements-grid::-webkit-scrollbar-thumb { background: var(--slate-200); border-radius: 10px; }
@@ -1525,7 +1523,7 @@ header h1 {
     opacity: 0.8;
 }
 
-/* حالت قفل بودن مدال */
+
 .achievement-card.locked {
     filter: grayscale(1);
     opacity: 0.6;
@@ -1539,7 +1537,7 @@ header h1 {
 }
 .achievement-lock-icon svg { width: 14px; height: 14px; }
 
-/* حالت باز شدن مدال (Unlocked) */
+
 .achievement-card.unlocked {
     background: rgba(48, 217, 147, 0.08);
     border-color: rgba(48, 217, 147, 0.4);
@@ -1557,7 +1555,7 @@ header h1 {
 .achievement-card.unlocked .achievement-desc { color: var(--slate-900); opacity: 1; }
 .achievement-card.unlocked .achievement-lock-icon { display: none; }
 
-/* انیمیشن پاپ‌آپ گرفتن مدال جدید */
+
 .achievement-toast {
     position: fixed;
     top: 20px;
@@ -1585,7 +1583,7 @@ header h1 {
 .achievement-toast-text span { color: var(--amber); font-size: 11px; font-weight: bold;}
 
 
-/* ================= صفحه لابی (نسخه 2026) ================= */
+
 #lobby-screen {
     display: flex;
     justify-content: center;
@@ -1595,7 +1593,7 @@ header h1 {
     z-index: 1;
 }
 
-/* 1. پس‌زمینه سیال (Mesh Gradients) */
+
 .lobby-mesh-bg {
     position: absolute;
     inset: -50px;
@@ -1621,7 +1619,7 @@ header h1 {
     100% { transform: translate(40px, 30px) scale(1.15); }
 }
 
-/* 2. شیشه پیشرفته (Hyper-Glassmorphism) */
+
 .lobby-card.hyper-glass {
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(40px) saturate(180%);
@@ -1642,7 +1640,7 @@ header h1 {
     100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
-/* 3. عناصر معلق (Floating Badges) */
+
 .floating-badge {
     position: absolute;
     background: rgba(48, 217, 147, 0.15);
@@ -1712,7 +1710,7 @@ header h1 {
 }
 .feature-item svg { width: 16px; height: 16px; color: var(--emerald); }
 
-/* --- استایل اصلی دکمه --- */
+
 .btn-lobby.fluid-btn {
     background: linear-gradient(135deg, #920F2A, #D61A40); 
     color: white;
@@ -1733,7 +1731,7 @@ header h1 {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
 }
 
-/* --- افکت نوری (هاله متحرک) --- */
+
 .btn-lobby.fluid-btn::before {
     content: '';
     position: absolute;
@@ -1746,7 +1744,7 @@ header h1 {
     transition: 0.6s ease;
 }
 
-/* --- انیمیشن‌ها موقع قرار گرفتن موس (Hover) --- */
+
 .btn-lobby.fluid-btn:hover { 
     transform: translateY(-3px); 
     box-shadow: 0 15px 35px rgba(214, 26, 64, 0.45); 
@@ -1773,7 +1771,7 @@ header h1 {
 }
 .lobby-footer strong { color: white; font-weight: 800; }
 
-/* پس زمنیه سیال کد جدید ---*/
+
 
 .global-mesh-bg {
     position: fixed;
