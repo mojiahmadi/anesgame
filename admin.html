@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد مدیریت | پازل بیهوشی</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --crimson: #8A0F2A;
+            --deep-red: #C81237;
+            --vivid-red: #FF3B5C;
+            --emerald: #30D993;
+            --amber: #FFB84D;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --slate-400: #6E7885;
+            --slate-900: #F5F7FA;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+
+        body {
+            background: #23494D;
+            color: var(--slate-900);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hidden { display: none !important; }
+
+        /* پس‌زمینه سیال */
+        .global-mesh-bg { position: fixed; inset: -50px; overflow: hidden; z-index: -1; pointer-events: none; }
+        .mesh-orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.3; animation: floatOrb 12s infinite ease-in-out alternate; }
+        .orb-1 { width: 300px; height: 300px; background: var(--vivid-red); top: 0; left: 10%; }
+        .orb-2 { width: 250px; height: 250px; background: var(--amber); bottom: 10%; right: 5%; animation-delay: -4s; }
+        .orb-3 { width: 350px; height: 350px; background: var(--emerald); top: 30%; left: 40%; animation-delay: -8s; opacity: 0.2; }
+        @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, 30px) scale(1.15); } }
+
+        /* --- صفحه ورود ادمین --- */
+        #admin-login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            padding: 40px 30px;
+            border-radius: 32px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            animation: popIn 0.6s cubic-bezier(.175,.885,.32,1.275);
+        }
+
+        @keyframes popIn {
+            0%   { opacity: 0; transform: scale(.9) translateY(10px); filter: blur(5px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+
+        .login-card h2 { font-size: 24px; font-weight: 900; color: white; margin-bottom: 24px; }
+
+        /* --- استایل اصلاح‌شده فیلد رمز عبور --- */
+        .admin-input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.18); /* پس‌زمینه تیره‌تر برای خوانایی بیشتر متن */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            font-size: 15px;
+            color: white;
+            outline: none;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+        }
+        
+        /* رنگ متن "رمز عبور را وارد کنید" */
+        .admin-input::placeholder {
+            color: rgba(255, 255, 255, 0.65);
+            letter-spacing: normal;
+        }
+
+        .admin-input:focus { 
+            border-color: var(--vivid-red); 
+            box-shadow: 0 0 15px rgba(255, 59, 92, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* --- دکمه ورود با افکت نوری سیال --- */
+        .btn-admin {
+            background: linear-gradient(135deg, #920F2A, #D61A40); 
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 800;
+            border-radius: 16px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(214, 26, 64, 0.3);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
+            position: relative;
+            overflow: hidden; /* برای جلوگیری از بیرون زدن نور */
+        }
+
+        /* هاله نوری */
+        .btn-admin::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-20deg);
+            transition: 0.6s ease;
+        }
+
+        .btn-admin:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 35px rgba(214, 26, 64, 0.45); 
+        }
+
+        /* حرکت نور موقع قرار گرفتن موس روی دکمه */
+        .btn-admin:hover::before { 
+            left: 150%; 
+        }
+        
+        .login-error-msg { color: var(--vivid-red); font-size: 13px; font-weight: 700; margin-top: 12px; }
+        .btn-admin:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(214, 26, 64, 0.45); }
+        .login-error-msg { color: var(--vivid-red); font-size: 13px; font-weight: 700; margin-top: 12px; }
+
+        /* --- داشبورد اصلی --- */
+        .admin-container { max-width: 1200px; width: 100%; margin: 0 auto; animation: popIn 0.5s ease-out; }
+
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            padding: 24px 32px; border-radius: 24px; border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); margin-bottom: 30px;
+        }
+        .admin-title h1 { font-size: 24px; font-weight: 900; margin-bottom: 4px; }
+        .admin-title p { font-size: 14px; color: var(--slate-400); }
+        .admin-branding { font-size: 13px; font-weight: 700; color: var(--emerald); background: rgba(48, 217, 147, 0.1); padding: 8px 16px; border-radius: 50px; border: 1px solid rgba(48, 217, 147, 0.3); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px;
+            display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255, 59, 92, 0.4); }
+        .stat-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: rgba(255, 59, 92, 0.1); color: var(--vivid-red); }
+        .stat-icon svg { width: 28px; height: 28px; }
+        .stat-info h3 { font-size: 14px; color: var(--slate-400); font-weight: 600; }
+        .stat-info p { font-size: 28px; font-weight: 900; color: white; margin-top: 4px; }
+
+        /* بخش نوار جستجو */
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 18px 24px 18px 50px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            font-size: 15px;
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-input::placeholder { color: var(--slate-400); }
+        .search-input:focus { border-color: var(--amber); box-shadow: 0 0 20px rgba(255, 184, 77, 0.2); }
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate-400);
+        }
+
+        /* جدول داده‌ها */
+        .table-container {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(40px);
+            border: 1px solid var(--glass-border); border-radius: 24px; padding: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; text-align: right; }
+        th, td { padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 14px; }
+        th { color: var(--slate-400); font-weight: 800; font-size: 13px; text-transform: uppercase; }
+        tbody tr { transition: background 0.2s; }
+        tbody tr:hover { background: rgba(255, 255, 255, 0.05); }
+        tbody tr:last-child td { border-bottom: none; }
+        .badge-error { background: rgba(255, 59, 92, 0.15); color: #FF6B81; padding: 4px 10px; border-radius: 50px; font-weight: 800; font-size: 12px; }
+        .badge-success { background: rgba(48, 217, 147, 0.15); color: var(--emerald); padding: 4px 10px; border-radius: 50px; font-weight: 800; font-size: 12px; }
+        .loading-text { text-align: center; padding: 40px; color: var(--amber); font-weight: 800; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="global-mesh-bg">
+        <div class="mesh-orb orb-1"></div>
+        <div class="mesh-orb orb-2"></div>
+        <div class="mesh-orb orb-3"></div>
+    </div>
+
+    <div id="admin-login-screen">
+        <div class="login-card">
+            <h2>ورود امن مدیریت</h2>
+            <input type="email" id="admin-email" class="admin-input" placeholder="ایمیل مدیریت" dir="ltr" autocomplete="off">
+            <input type="password" id="admin-pass" class="admin-input" placeholder="رمز عبور" dir="ltr" onkeypress="handleEnter(event)">
+            <button class="btn-admin" id="login-btn" onclick="loginAdmin()">ورود به داشبورد</button>
+            <p id="login-error" class="login-error-msg hidden">ایمیل یا رمز عبور اشتباه است!</p>
+        </div>
+    </div>
+
+    <div id="admin-dashboard" class="admin-container hidden">
+        
+        <div class="admin-header">
+            <div class="admin-title">
+                <h1>داشبورد مدیریت | پازل بیهوشی</h1>
+                <p>رصد زنده اطلاعات و رکوردهای دانشجویان</p>
+            </div>
+            <div class="admin-branding" style="display: flex; gap: 12px; align-items: center;">
+    <span>توسعه‌دهنده: مجتبی احمدی</span>
+    <button onclick="logoutAdmin()" style="background: rgba(255, 59, 92, 0.15); color: var(--vivid-red); border: 1px solid rgba(255, 59, 92, 0.3); padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        خروج
+    </button>
+</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                <div class="stat-info">
+                    <h3>کل بازی‌های انجام شده</h3>
+                    <p id="total-games">...</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--amber); background: rgba(255,184,77,0.1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <div class="stat-info">
+                    <h3>میانگین زمان (ثانیه)</h3>
+                    <p id="avg-time">...</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--emerald); background: rgba(48,217,147,0.1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                <div class="stat-info">
+                    <h3>بازی‌های بدون خطا</h3>
+                    <p id="flawless-games">...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search-input" class="search-input" placeholder="جستجو بر اساس نام دانشجو یا شماره موبایل..." onkeyup="filterTable()">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>نام دانشجو</th>
+                        <th>شماره موبایل</th>
+                        <th>نام چالش</th>
+                        <th>زمان ثبت شده</th>
+                        <th>تعداد خطا</th>
+                        <th>تاریخ ثبت</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr><td colspan="6" class="loading-text">در حال دریافت اطلاعات از سرور ابری... ⏳</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // === بخش امنیت و ورود ===
+       // === بخش امنیت ابری (Supabase Auth) ===
+        
+        async function loginAdmin() {
+            const email = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-pass').value;
+            const errorEl = document.getElementById('login-error');
+            const btn = document.getElementById('login-btn');
+
+            if (!email || !password) {
+                errorEl.innerText = "لطفاً ایمیل و رمز عبور را وارد کنید.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            // تغییر حالت دکمه به لودینگ
+            btn.innerText = "در حال ارتباط با سرور...";
+            btn.disabled = true;
+
+            // ارسال درخواست بررسی به Supabase
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            btn.innerText = "ورود به داشبورد";
+            btn.disabled = false;
+
+            if (error) {
+                errorEl.innerText = "ایمیل یا رمز عبور اشتباه است!";
+                errorEl.classList.remove('hidden');
+            } else {
+                // ورود موفق
+                errorEl.classList.add('hidden');
+                document.getElementById('admin-login-screen').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                fetchAdminData();
+            }
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') loginAdmin();
+        }
+
+        // بررسی اینکه آیا مدیر از قبل وارد شده است یا خیر (حفظ سشن)
+        async function checkSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                // اگر از قبل لاگین بود، مستقیم برو به داشبورد
+                document.getElementById('admin-login-screen').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                fetchAdminData();
+            }
+        }
+
+        // جایگزین کردن window.onload قبلی با این تابع ترکیبی
+        window.onload = () => {
+            checkSession();
+        };
+
+        // دکمه خروج از حساب برای پنل ادمین (اختیاری ولی کاربردی)
+        async function logoutAdmin() {
+            await supabaseClient.auth.signOut();
+            location.reload(); // رفرش صفحه برای برگشت به فرم ورود
+        }
+
+        // === بخش جستجو در جدول ===
+        function filterTable() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#table-body tr');
+            
+            rows.forEach(row => {
+                const nameCell = row.cells[0]?.innerText.toLowerCase() || '';
+                const phoneCell = row.cells[1]?.innerText.toLowerCase() || '';
+                
+                if (nameCell.includes(query) || phoneCell.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // === بخش دریافت داده‌ها از Supabase ===
+        const { createClient } = supabase;
+        const supabaseUrl = 'https://yaguesbmmaaeerfkzdnr.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhZ3Vlc2JtbWFhZWVyZmt6ZG5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDA3MDEsImV4cCI6MjA5ODY3NjcwMX0.9WFow53Vx-4y-6rS5lfD_UwsUxchLQcWkGmGOzDlv3M'; 
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        function formatTime(s) {
+            return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit' };
+            return new Date(dateString).toLocaleDateString('fa-IR', options);
+        }
+
+        async function fetchAdminData() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('player')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('table-body');
+                tbody.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px;">هنوز هیچ رکوردی ثبت نشده است.</td></tr>';
+                    return;
+                }
+
+                let totalTime = 0;
+                let flawlessCount = 0;
+
+                data.forEach(record => {
+                    totalTime += record.time || 0;
+                    if (record.mistakes === 0) flawlessCount++;
+
+                    const mistakeBadge = record.mistakes === 0 
+                        ? `<span class="badge-success">بدون خطا</span>` 
+                        : `<span class="badge-error">${record.mistakes} خطا</span>`;
+
+                    const row = `
+                        <tr>
+                            <td style="font-weight:700; color:white;">${record.name || 'ناشناس'}</td>
+                            <td style="direction:ltr; text-align:right; color:var(--slate-400);">${record.phone || 'ندارد'}</td>
+                            <td>${record.level_name || 'نامشخص'}</td>
+                            <td style="font-family:monospace; font-size:15px;">${formatTime(record.time || 0)}</td>
+                            <td>${mistakeBadge}</td>
+                            <td style="color:var(--slate-400); font-size:12px;">${formatDate(record.created_at)}</td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+
+                document.getElementById('total-games').innerText = data.length;
+                document.getElementById('avg-time').innerText = data.length > 0 ? Math.round(totalTime / data.length) : 0;
+                document.getElementById('flawless-games').innerText = flawlessCount;
+
+            } catch (err) {
+                console.error("❌ خطا در دریافت اطلاعات: ", err);
+                document.getElementById('table-body').innerHTML = '<tr><td colspan="6" class="loading-text" style="color:#FF3B5C;">خطا در برقراری ارتباط با دیتابیس ابری!</td></tr>';
+            }
+        }
+    </script>
+</body>
+</html>

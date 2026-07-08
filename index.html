@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>پازل بیهوشی - بازی تعاملی</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="global-mesh-bg">
+    <div class="mesh-orb orb-1"></div>
+    <div class="mesh-orb orb-2"></div>
+    <div class="mesh-orb orb-3"></div>
+</div>
+
+<svg width="0" height="0" style="position:absolute;">
+    <defs>
+        <linearGradient id="primary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="var(--deep-red)" />
+            <stop offset="100%" stop-color="var(--vivid-red)" />
+        </linearGradient>
+    </defs>
+</svg>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div id="coin-badge" class="coin-badge hidden fade-on-scroll">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-2.5-1.5c-1.5 0-2.5 1-2.5 2s1 1.5 2.5 2 2.5 1 2.5 2-1 2-2.5 2a2.5 2.5 0 0 1-2.5-1.5"/><path d="M12 6v1.5M12 16.5V18"/></svg>
+    <span id="coin-count">0</span>
+</div>
+<button id="daily-reward-btn" class="daily-reward-btn hidden fade-on-scroll" onclick="openDailyReward()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8Z"/><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8Z"/></svg>
+    جایزه روزانه
+    <span class="daily-reward-dot" id="daily-reward-dot"></span>
+</button>
+<div id="coin-toast" class="coin-toast"></div>
+
+<div id="user-menu" class="user-menu hidden fade-on-scroll">
+    <button class="user-menu-btn" onclick="toggleUserMenu()" aria-label="حساب کاربری">
+        <span class="user-menu-btn-avatar" id="user-menu-btn-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </span>
+    </button>
+    <div class="user-menu-dropdown" id="user-menu-dropdown">
+        <div class="user-menu-header">
+            <button type="button" class="user-menu-avatar-btn" onclick="openAvatarPicker()" title="تغییر آواتار">
+                <div class="user-menu-avatar" id="user-menu-avatar">؟</div>
+                <span class="avatar-edit-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                </span>
+            </button>
+            <div>
+                <div class="user-menu-name" id="user-menu-name">-</div>
+                <div class="user-menu-sub">حساب کاربری</div>
+            </div>
+        </div>
+
+        <div class="user-menu-item">
+            <span>موبایل</span>
+            <span id="user-menu-phone-display" class="user-menu-phone-display" onclick="toggleEditPhone()">
+                <span id="user-menu-phone-text">-</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            </span>
+        </div>
+        <div class="user-menu-phone-edit hidden" id="user-menu-phone-edit">
+            <input type="tel" id="user-menu-phone-input" class="user-menu-phone-input" maxlength="11" dir="ltr" placeholder="09xxxxxxxxx">
+            <button type="button" class="user-menu-phone-save" onclick="savePhone()">ذخیره</button>
+        </div>
+
+        <div class="user-menu-item">
+            <span>موجودی سکه</span>
+            <span class="coin-inline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-2.5-1.5c-1.5 0-2.5 1-2.5 2s1 1.5 2.5 2 2.5 1 2.5 2-1 2-2.5 2a2.5 2.5 0 0 1-2.5-1.5"/><path d="M12 6v1.5M12 16.5V18"/></svg>
+                <span id="user-menu-coins">0</span>
+            </span>
+        </div>
+
+        <div class="user-menu-item" style="cursor:pointer;" onclick="openProfileModal()">
+            <span>تکمیل مشخصات</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+
+        <div class="user-menu-item" style="cursor:pointer;" onclick="openSettingsModal()">
+            <span>تنظیمات</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+
+        <button class="user-menu-logout" onclick="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            خروج از حساب
+        </button>
+    </div>
+</div>
+
+<header id="main-header" class="hidden">
+    <h1>
+        <span class="header-icon-wrap">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFB3C1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </span>
+        پازل بیهوشی
+    </h1>
+    <p class="header-subtitle">بازی تعاملی آموزش بالینی · Anesthesia Puzzle</p>
+</header>
+
+<div class="container">
+    <div id="lobby-screen">
+    <div class="lobby-card hyper-glass">
+        
+        <div class="floating-badge badge-top">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>منطبق بر گایدلاین ۲۰۲۵</span>
+        </div>
+        
+        <div class="lobby-logo fluid-logo">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--vivid-red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h2>پازل بیهوشی</h2>
+        <h3 class="lobby-subtitle">شبیه‌ساز تعاملی مهارت‌های بالینی</h3>
+        
+        <p class="lobby-desc">
+            محیطی استاندارد برای ارزیابی مهارت‌های تصمیم‌گیری. چالش‌ها را پشت سر بگذارید، سکه جمع کنید و افتخارات خود را به رخ بکشید.
+        </p>
+        
+        <div class="lobby-features">
+            <div class="feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>الگوریتم‌های ایمن</span>
+            </div>
+            <div class="feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                <span>رقابت کشوری</span>
+            </div>
+        </div>
+
+        <button class="btn-lobby fluid-btn" onclick="goToLogin()">
+            <span>ورود به پلتفرم</span>
+            <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        
+        <div class="lobby-footer">
+            طراحی و توسعه: <strong>مجتبی احمدی</strong>
+        </div>
+    </div>
+</div> 
+
+
+    <div id="login-screen" class="hidden">
+        <div class="login-card">
+            <span class="login-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--crimson)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v3"/><path d="M10 14h4"/></svg>
+            </span>
+            <h2>ورود به پلتفرم</h2>
+            <p>دانشجوی عزیز، برای ثبت رکوردها لطفاً مشخصات خود را وارد کنید.</p>
+            
+            <form onsubmit="handleLogin(event)">
+                <input type="text" id="player-name" class="login-input" placeholder="نام و نام خانوادگی" required autocomplete="off">
+                <input type="tel" id="player-phone" class="login-input" placeholder="شماره موبایل" pattern="09\d{9}" maxlength="11" required autocomplete="off" inputmode="numeric" dir="ltr" style="text-align:center;">
+                <p id="login-error" class="login-error hidden">شماره موبایل را به‌صورت صحیح وارد کنید.</p>
+                <button type="submit" class="btn-login">
+                    ورود به بازی 
+                    <svg class="btn-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="menu-screen" class="hidden">
+        
+        <h3 id="welcome-message" class="welcome-msg hidden"></h3>
+        
+        <div class="menu-header-text">
+            <h2>چالش‌های بالینی</h2>
+            <p>برای ارزیابی مهارت خود، روی یکی از پازل‌های زیر کلیک کنید.</p>
+        </div>
+
+        <div class="level-cards" id="level-cards-container">
+            <div class="card" onclick="startGame(0)"><div class="card-lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <span class="card-level-badge">مرحله ۱</span>
+                <div class="card-icon-wrap">
+                    <svg class="premium-svg" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M12 12c-2 2-3 5-3 8"/><path d="M12 12c2 2 3 5 3 8"/><path d="M9 20a3 3 0 0 1-3-3c0-3 1.5-5 3-5"/><path d="M15 20a3 3 0 0 0 3-3c0-3-1.5-5-3-5"/></svg>
+                </div>
+                <h2>آناتومی راه هوایی</h2>
+                <p>ترتیب عبور لوله تراشه از دهان تا کارینا.</p>
+                <button class="btn-play">شروع چالش <svg class="btn-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            </div>
+            <div class="card" onclick="startGame(1)"><div class="card-lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <span class="card-level-badge">مرحله ۲</span>
+                <div class="card-icon-wrap">
+                    <svg class="premium-svg" viewBox="0 0 24 24"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.4 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg>
+                </div>
+                <h2>اینداکشن (RSI)</h2>
+                <p>ترتیب صحیح تزریق داروها و لوله‌گذاری.</p>
+                <button class="btn-play">شروع چالش <svg class="btn-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            </div>
+            <div class="card" onclick="startGame(2)"><div class="card-lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <span class="card-level-badge">مرحله ۳</span>
+                <div class="card-icon-wrap">
+                    <svg class="premium-svg" viewBox="0 0 24 24"><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-4 4c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c0 .28.22.5.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/></svg>
+                </div>
+                <h2>بی‌حسی اسپاینال</h2>
+                <p>پیمایش لایه‌ها تا رسیدن به فضای ساب‌آراکنوئید.</p>
+                <button class="btn-play">شروع چالش <svg class="btn-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            </div>
+            <div class="card" onclick="startGame(3)"><div class="card-lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <span class="card-level-badge">مرحله ۴</span>
+                <div class="card-icon-wrap">
+                    <svg class="premium-svg" viewBox="0 0 24 24"><path d="M12 15h.01"/><path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/><path d="m15 9-3 4"/></svg>
+                </div>
+                <h2>مسیر ماشین بیهوشی</h2>
+                <p>ترتیب عبور اکسیژن از کپسول مرکزی تا ماسک بیمار.</p>
+                <button class="btn-play">شروع چالش <svg class="btn-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            </div>
+            <div class="card" onclick="startGame(4)"><div class="card-lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <span class="card-level-badge">مرحله ۵</span>
+                <div class="card-icon-wrap">
+                    <svg class="premium-svg" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3 12h3l3-4 4 9 3-5h5"/></svg>
+                </div>
+                <h2>داروها و احیای CPR</h2>
+                <p>الگوریتم پایه ACLS و تزریق آدرنالین در ایست قلبی.</p>
+                <button class="btn-play">شروع چالش <svg class="btn-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            </div>
+            <div class="card" onclick="startGame(5)"><div class="card-lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <span class="card-level-badge">مرحله ۶</span>
+                <div class="card-icon-wrap">
+                    <svg class="premium-svg" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                </div>
+                <h2>ریورسال و بیداری</h2>
+                <p>ترتیب دادن داروهای آنتی‌کولینرژیک، نئوستیگمین و اکستوبه کردن.</p>
+                <button class="btn-play">شروع چالش <svg class="btn-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            </div>
+            <div class="card" onclick="startGame(6)"><div class="card-lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <span class="card-level-badge">مرحله ۷</span>
+                <div class="card-icon-wrap">
+                    <svg class="premium-svg" viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/><path d="M12 16v-4"/></svg>
+                </div>
+                <h2>هایپرترمی بدخیم</h2>
+                <p>اقدامات اورژانسی: قطع گاز، تهویه بالا و تزریق دانترولن.</p>
+                <button class="btn-play">شروع چالش <svg class="btn-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            </div>
+            <div class="card" onclick="startGame(7)"><div class="card-lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                <span class="card-level-badge">مرحله ۸</span>
+                <div class="card-icon-wrap">
+                    <svg class="premium-svg" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+                </div>
+                <h2>پروسیجر رگ‌گیری</h2>
+                <p>مراحل عملی از بستن تورنیکت تا پیشبرد کاتتر آنژیوکت.</p>
+                <button class="btn-play">شروع چالش <svg class="btn-svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        <div class="game-header">
+            <div class="game-header-info">
+                <h2 id="level-title">عنوان مرحله</h2>
+                <p id="level-desc">توضیحات مرحله</p>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="progress-bar"></div>
+                </div>
+            </div>
+            <div class="game-stats">
+                <div class="stat-box">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="timer-display">00:00</span>
+                </div>
+                <div class="stat-box">
+                    <svg class="text-danger" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    خطا: <span id="mistakes-display" class="text-danger">0</span>
+                </div>
+                <button class="btn-hint" id="btn-hint" onclick="useHint()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg>
+                    راهنمایی <span class="hint-cost" id="hint-cost-label">۱۵ سکه</span>
+                </button>
+                <button class="btn-back" onclick="showMenu()">
+                    <svg width="14" height="14" style="margin-left: 6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    بازگشت
+                </button>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="draggables-panel">
+                <h3 class="panel-title">
+                    <svg width="20" height="20" style="color:var(--vivid-red)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19.439 7.85c-.049.322-.059.648-.029.975.326.042.651.05.973.023a1.53 1.53 0 1 0-.944-1.002v.004Zm-7.29 0c-.049.322-.059.648-.029.975.326.042.651.05.973.023a1.53 1.53 0 1 0-.944-1.002v.004Z"/><path d="M19.439 16.15c-.049-.322-.059-.648-.029-.975.326-.042.651-.05.973-.023a1.53 1.53 0 1 1-.944 1.002v-.004Zm-7.29 0c-.049-.322-.059-.648-.029-.975.326-.042.651-.05.973-.023a1.53 1.53 0 1 1-.944 1.002v-.004Z"/><path d="M12.149 7.85v.004M12.149 16.15v-.004M4.859 16.15v-.004M4.859 7.85v.004"/></svg>
+                    قطعات پازل
+                </h3>
+                <p class="panel-hint">گزینه‌ها را بکشید و در جای درست رها کنید.</p>
+                <div id="draggables-container"></div>
+            </div>
+
+            <div class="drop-targets-panel">
+                <h3 class="panel-title">
+                    <svg width="20" height="20" style="color:var(--vivid-red)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    ترتیب صحیح (از ابتدا به انتها)
+                </h3>
+                <div id="drop-targets-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="success-icon-wrap">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7c0 3.31 2.69 6 6 6s6-2.69 6-6V2Z"/></svg>
+            </div>
+            <h2>عملیات موفقیت‌آمیز! 🎉</h2>
+            <p>شما الگوریتم این پروسیجر را به درستی تکمیل کردید.</p>
+
+            <div class="stars-row">
+                <svg class="star" id="star1" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" id="star2" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" id="star3" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+
+            <div class="coin-earned-row" id="coin-earned-row">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-2.5-1.5c-1.5 0-2.5 1-2.5 2s1 1.5 2.5 2 2.5 1 2.5 2-1 2-2.5 2a2.5 2.5 0 0 1-2.5-1.5"/><path d="M12 6v1.5M12 16.5V18"/></svg>
+                <span id="coin-earned-text">+۰ سکه</span>
+            </div>
+
+            <div class="record-box">
+                <div class="record-item">
+                    <span class="lbl">⏱ زمان ثبت شده</span>
+                    <span class="val" id="final-time">—</span>
+                </div>
+                <div class="record-item">
+                    <span class="lbl">❌ تعداد خطا</span>
+                    <span class="val" id="final-mistakes" style="color:var(--vivid-red)">—</span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-next" id="btn-next-level" onclick="nextLevel()">
+                    مرحله بعدی <svg class="btn-svg" style="margin-left:0; margin-right:6px;" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </button>
+                <button class="btn-secondary" onclick="showMenu()">
+                    بازگشت به منوی اصلی
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="avatar-modal" class="modal-overlay hidden">
+        <div class="modal-content avatar-modal-content">
+            <h2>انتخاب آواتار</h2>
+            <p>یکی از آواتارهای مرتبط با رشته رو انتخاب کن یا عکس دلخواهت رو آپلود کن.</p>
+
+            <div class="avatar-grid" id="avatar-grid"></div>
+
+            <label class="avatar-upload-btn" for="avatar-upload-input">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                آپلود عکس دلخواه
+            </label>
+            <input type="file" id="avatar-upload-input" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
+            <p id="avatar-upload-error" class="login-error hidden">حجم عکس زیاد است (حداکثر ۱ مگابایت).</p>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeAvatarPicker()">بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="daily-reward-modal" class="modal-overlay hidden">
+        <div class="modal-content daily-reward-content">
+            <div class="success-icon-wrap daily-reward-icon-wrap">
+                <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8Z"/><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8Z"/></svg>
+            </div>
+            <h2>جایزه روزانه 🎁</h2>
+            <p id="daily-reward-desc">هر روز سر بزن و سکه‌های بیشتری بگیر!</p>
+
+            <div class="reward-track" id="reward-track"></div>
+
+            <div class="modal-actions">
+                <button class="btn-next" id="btn-claim-reward" onclick="claimDailyReward()">
+                    دریافت جایزه امروز
+                </button>
+                <button class="btn-secondary" onclick="closeDailyReward()">بعداً</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>تکمیل مشخصات</h2>
+            <p>لطفاً اطلاعات خود را برای ثبت در جشنواره تکمیل کنید.</p>
+            
+            <div style="display:flex; flex-direction:column; gap:12px; margin:20px 0;">
+                <input type="text" id="profile-student-id" class="login-input" placeholder="شماره دانشجویی" style="margin-bottom:0;" autocomplete="off">
+                <input type="email" id="profile-email" class="login-input" placeholder="آدرس ایمیل" style="margin-bottom:0;" dir="ltr" autocomplete="off">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-next" onclick="saveExtraProfile()">ذخیره اطلاعات</button>
+                <button class="btn-secondary" onclick="closeProfileModal()">بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-content settings-modal-content">
+            <h2>تنظیمات</h2>
+            <div class="user-menu-item" style="cursor:pointer;" onclick="openAchievementsModal()">
+    <span>افتخارات من</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15l-3.09 1.63.59-3.45L7 10.7l3.46-.5L12 7l1.54 3.2 3.46.5-2.5 2.48.59 3.45L12 15z"/><circle cx="12" cy="12" r="10"/></svg>
+</div>
+            <p>ترجیحات بازی رو از اینجا مدیریت کن.</p>
+
+            <div class="settings-row">
+                <div class="settings-row-label">
+                    <span class="settings-row-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                    </span>
+                    <span class="settings-row-text">
+                        <strong>افکت‌های صوتی</strong>
+                        <span>صدای پاسخ درست، غلط و برنده شدن</span>
+                    </span>
+                </div>
+                <button type="button" class="toggle-switch" id="sound-toggle" onclick="toggleSound()" aria-label="روشن/خاموش کردن صدا"></button>
+            </div>
+
+            <button class="settings-danger-btn" onclick="requestResetProgress()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                بازنشانی سکه‌ها و پیشرفت مراحل
+            </button>
+            <p class="settings-reset-note">این کار سکه‌ها رو به مقدار اولیه برمی‌گردونه، زنجیره‌ی جایزه روزانه رو صفر می‌کنه و قفل همه‌ی مراحل رو برمی‌گردونه. مشخصات و آواتار شما حذف نمی‌شه.</p>
+
+            <div class="modal-actions" style="margin-top:20px;">
+                <button class="btn-secondary" onclick="closeSettingsModal()">بستن</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="timeup-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="timeout-icon-wrap">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h2>⏰ زمان تمام شد!</h2>
+            <p>وقت این مرحله به پایان رسید. نگران نباش، دوباره امتحان کن.</p>
+
+            <div class="record-box">
+                <div class="record-item">
+                    <span class="lbl">✅ قطعات درست</span>
+                    <span class="val" id="timeup-correct-count">—</span>
+                </div>
+                <div class="record-item">
+                    <span class="lbl">❌ تعداد خطا</span>
+                    <span class="val" id="timeup-mistakes" style="color:var(--vivid-red)">—</span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-next" onclick="retryLevel()">
+                    تلاش مجدد <svg class="btn-svg" style="margin-left:0; margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.64-6.36"/><path d="M3 3v6h6"/></svg>
+                </button>
+                <button class="btn-secondary" onclick="showMenu()">بازگشت به منو</button>
+            </div>
+        </div>
+    </div>
+<div id="achievements-modal" class="modal-overlay hidden">
+    <div class="modal-content achievements-modal-content">
+        <h2>مدال‌ها و افتخارات 🏆</h2>
+        <p>با تکمیل چالش‌ها با شرایط خاص، این نشان‌ها را آزاد کن.</p>
+        
+        <div class="achievements-grid" id="achievements-grid">
+            </div>
+
+        <div class="modal-actions" style="margin-top:20px;">
+            <button class="btn-secondary" onclick="closeAchievementsModal()">بستن</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
