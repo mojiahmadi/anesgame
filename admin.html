@@ -73,11 +73,11 @@
 
         .login-card h2 { font-size: 24px; font-weight: 900; color: white; margin-bottom: 24px; }
 
-        /* --- استایل اصلاح‌شده فیلد رمز عبور --- */
+        
         .admin-input {
             width: 100%;
             padding: 16px;
-            background: rgba(0, 0, 0, 0.18); /* پس‌زمینه تیره‌تر برای خوانایی بیشتر متن */
+            background: rgba(0, 0, 0, 0.18); 
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 16px;
             font-size: 15px;
@@ -89,7 +89,7 @@
             transition: all 0.3s;
         }
         
-        /* رنگ متن "رمز عبور را وارد کنید" */
+        
         .admin-input::placeholder {
             color: rgba(255, 255, 255, 0.65);
             letter-spacing: normal;
@@ -101,7 +101,7 @@
             background: rgba(0, 0, 0, 0.3);
         }
         
-        /* --- دکمه ورود با افکت نوری سیال --- */
+        
         .btn-admin {
             background: linear-gradient(135deg, #920F2A, #D61A40); 
             color: white;
@@ -115,10 +115,10 @@
             box-shadow: 0 10px 30px rgba(214, 26, 64, 0.3);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
             position: relative;
-            overflow: hidden; /* برای جلوگیری از بیرون زدن نور */
+            overflow: hidden; 
         }
 
-        /* هاله نوری */
+        
         .btn-admin::before {
             content: '';
             position: absolute;
@@ -134,7 +134,7 @@
             box-shadow: 0 15px 35px rgba(214, 26, 64, 0.45); 
         }
 
-        /* حرکت نور موقع قرار گرفتن موس روی دکمه */
+        
         .btn-admin:hover::before { 
             left: 150%; 
         }
@@ -313,11 +313,11 @@
                 return;
             }
 
-            // تغییر حالت دکمه به لودینگ
+            
             btn.innerText = "در حال ارتباط با سرور...";
             btn.disabled = true;
 
-            // ارسال درخواست بررسی به Supabase
+            
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
                 password: password
@@ -330,7 +330,7 @@
                 errorEl.innerText = "ایمیل یا رمز عبور اشتباه است!";
                 errorEl.classList.remove('hidden');
             } else {
-                // ورود موفق
+                
                 errorEl.classList.add('hidden');
                 document.getElementById('admin-login-screen').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -342,29 +342,29 @@
             if (e.key === 'Enter') loginAdmin();
         }
 
-        // بررسی اینکه آیا مدیر از قبل وارد شده است یا خیر (حفظ سشن)
+        
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                // اگر از قبل لاگین بود، مستقیم برو به داشبورد
+                
                 document.getElementById('admin-login-screen').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 fetchAdminData();
             }
         }
 
-        // جایگزین کردن window.onload قبلی با این تابع ترکیبی
+        
         window.onload = () => {
             checkSession();
         };
 
-        // دکمه خروج از حساب برای پنل ادمین (اختیاری ولی کاربردی)
+        
         async function logoutAdmin() {
             await supabaseClient.auth.signOut();
-            location.reload(); // رفرش صفحه برای برگشت به فرم ورود
+            location.reload(); 
         }
 
-        // === بخش جستجو در جدول ===
+        
         function filterTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const rows = document.querySelectorAll('#table-body tr');
