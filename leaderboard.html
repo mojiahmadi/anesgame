@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تابلوی افتخار - پازل بیهوشی</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* ===== استایل‌های اختصاصی لیدربورد ===== */
+
+        .lb-page {
+            min-height: 100vh;
+            padding: 24px 16px 48px;
+            max-width: 780px;
+            margin: 0 auto;
+        }
+
+        /* هدر */
+        .lb-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .lb-back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--slate-900);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        /* چون RTL هست، آیکون فلش باید برعکس باشه */
+        .lb-back-btn svg {
+            transform: scaleX(-1);
+        }
+
+        .lb-back-btn:hover { background: var(--glass-strong); }
+
+        .lb-title-block {
+            flex: 1;
+            text-align: right;
+        }
+
+        .lb-title-block h1 {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--slate-900);
+            margin: 0 0 2px;
+        }
+
+        .lb-title-block p {
+            font-size: 12px;
+            color: var(--slate-500);
+            margin: 0;
+        }
+
+        /* فیلتر چالش */
+        .lb-filter {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .lb-filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            color: var(--slate-500);
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .lb-filter-btn.active {
+            background: linear-gradient(135deg, var(--deep-red), var(--vivid-red));
+            color: white;
+            border-color: transparent;
+            font-weight: 700;
+        }
+
+        .lb-filter-btn:hover:not(.active) { background: var(--glass-strong); color: var(--slate-900); }
+
+        /* تب بهترین / آخرین */
+        .lb-tabs {
+            display: flex;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+            gap: 4px;
+        }
+
+        .lb-tab {
+            flex: 1;
+            padding: 10px;
+            border-radius: 9px;
+            border: none;
+            background: transparent;
+            color: var(--slate-500);
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lb-tab.active {
+            background: var(--glass-strong);
+            color: var(--slate-900);
+        }
+
+        /* سه نفر اول */
+        .lb-podium {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .lb-podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            max-width: 160px;
+        }
+
+        .lb-podium-item.first { order: 2; }
+        .lb-podium-item.second { order: 1; }
+        .lb-podium-item.third { order: 3; }
+
+        .lb-podium-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: white;
+            position: relative;
+        }
+
+        .lb-podium-item.first .lb-podium-avatar { width: 64px; height: 64px; font-size: 24px; background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .lb-podium-item.second .lb-podium-avatar { background: linear-gradient(135deg, #94a3b8, #cbd5e1); }
+        .lb-podium-item.third .lb-podium-avatar { background: linear-gradient(135deg, #c2763a, #d97706); }
+
+        .lb-podium-crown {
+            position: absolute;
+            top: -14px;
+            font-size: 18px;
+        }
+
+        .lb-podium-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--slate-900);
+            text-align: center;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .lb-podium-time {
+            font-size: 11px;
+            color: var(--slate-500);
+            font-family: monospace;
+        }
+
+        .lb-podium-base {
+            width: 100%;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 900;
+            color: white;
+        }
+
+        .lb-podium-item.first .lb-podium-base { height: 64px; background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .lb-podium-item.second .lb-podium-base { height: 48px; background: linear-gradient(135deg, #94a3b8, #cbd5e1); }
+        .lb-podium-item.third .lb-podium-base { height: 36px; background: linear-gradient(135deg, #c2763a, #d97706); }
+
+        /* جدول نفرات ۴ به بعد */
+        .lb-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .lb-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: background 0.2s;
+        }
+
+        .lb-row:hover { background: var(--glass-strong); }
+
+        .lb-row.highlight {
+            border-color: var(--vivid-red);
+            background: rgba(255, 59, 92, 0.08);
+        }
+
+        .lb-rank {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--slate-500);
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .lb-row-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--deep-red), var(--vivid-red));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .lb-row-info { flex: 1; min-width: 0; }
+
+        .lb-row-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--slate-900);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lb-row-level {
+            font-size: 11px;
+            color: var(--slate-500);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lb-row-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .lb-row-time {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--slate-900);
+            font-family: monospace;
+        }
+
+        .lb-row-mistakes {
+            font-size: 11px;
+            color: var(--slate-500);
+        }
+
+        .lb-row-mistakes span {
+            color: var(--vivid-red);
+            font-weight: 700;
+        }
+
+        /* لودینگ */
+        .lb-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 60px 20px;
+            color: var(--slate-500);
+            font-size: 14px;
+        }
+
+        .lb-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--glass-border);
+            border-top-color: var(--vivid-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* خطا */
+        .lb-error {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--slate-500);
+        }
+
+        .lb-error svg { margin-bottom: 12px; color: var(--vivid-red); }
+        .lb-error p { font-size: 14px; margin: 0; }
+
+        /* خالی */
+        .lb-empty {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--slate-500);
+            font-size: 14px;
+        }
+
+        /* نشانگر تازه‌سازی */
+        .lb-refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--slate-500);
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .lb-refresh-btn:hover { background: var(--glass-strong); color: var(--slate-900); }
+        .lb-refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+
+        /* شمارنده کل */
+        .lb-count {
+            font-size: 12px;
+            color: var(--slate-500);
+            margin-bottom: 16px;
+        }
+
+        .lb-count strong { color: var(--vivid-red); }
+    </style>
+</head>
+<body>
+
+<div class="global-mesh-bg">
+    <div class="mesh-orb orb-1"></div>
+    <div class="mesh-orb orb-2"></div>
+    <div class="mesh-orb orb-3"></div>
+</div>
+
+<div class="lb-page">
+
+    <!-- هدر -->
+    <div class="lb-header">
+        <a href="index.html" class="lb-back-btn" aria-label="بازگشت">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </a>
+        <div class="lb-title-block">
+            <h1>🏆 تابلوی افتخار</h1>
+            <p>برترین بازیکنان پازل بیهوشی</p>
+        </div>
+        <button class="lb-refresh-btn" id="refresh-btn" onclick="loadData()" aria-label="بروزرسانی">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                <path d="M8 16H3v5"/>
+            </svg>
+            بروزرسانی
+        </button>
+    </div>
+
+    <!-- تب بهترین / آخرین -->
+    <div class="lb-tabs">
+        <button class="lb-tab active" id="tab-best" onclick="switchTab('best')">
+            ⚡ بهترین زمان
+        </button>
+        <button class="lb-tab" id="tab-recent" onclick="switchTab('recent')">
+            🕐 آخرین نتایج
+        </button>
+    </div>
+
+    <!-- فیلتر چالش -->
+    <div class="lb-filter" id="filter-container">
+        <button class="lb-filter-btn active" data-level="all" onclick="filterByLevel('all', this)">همه چالش‌ها</button>
+        <button class="lb-filter-btn" data-level="آناتومی راه هوایی" onclick="filterByLevel('آناتومی راه هوایی', this)">راه هوایی</button>
+        <button class="lb-filter-btn" data-level="داروها و مراحل اینداکشن (RSI)" onclick="filterByLevel('داروها و مراحل اینداکشن (RSI)', this)">اینداکشن</button>
+        <button class="lb-filter-btn" data-level="آناتومی و تزریق بلوک اسپاینال" onclick="filterByLevel('آناتومی و تزریق بلوک اسپاینال', this)">اسپاینال</button>
+        <button class="lb-filter-btn" data-level="مسیر اکسیژن در ماشین بیهوشی" onclick="filterByLevel('مسیر اکسیژن در ماشین بیهوشی', this)">ماشین بیهوشی</button>
+        <button class="lb-filter-btn" data-level="احیای قلبی ریوی و داروها (ACLS)" onclick="filterByLevel('احیای قلبی ریوی و داروها (ACLS)', this)">ACLS</button>
+        <button class="lb-filter-btn" data-level="ریورسال و بیداری (Emergence)" onclick="filterByLevel('ریورسال و بیداری (Emergence)', this)">ریورسال</button>
+        <button class="lb-filter-btn" data-level="مدیریت هایپرترمی بدخیم (MH)" onclick="filterByLevel('مدیریت هایپرترمی بدخیم (MH)', this)">هایپرترمی</button>
+        <button class="lb-filter-btn" data-level="پروسیجر رگ‌گیری (IV Cannulation)" onclick="filterByLevel('پروسیجر رگ‌گیری (IV Cannulation)', this)">رگ‌گیری</button>
+    </div>
+
+    <!-- محتوا -->
+    <div id="lb-content">
+        <div class="lb-loading">
+            <div class="lb-spinner"></div>
+            <span>در حال بارگذاری...</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    // ===== اتصال Supabase =====
+    const supabaseUrl = 'https://yaguesbmmaaeerfkzdnr.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhZ3Vlc2JtbWFhZWVyZmt6ZG5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDA3MDEsImV4cCI6MjA5ODY3NjcwMX0.9WFow53Vx-4y-6rS5lfD_UwsUxchLQcWkGmGOzDlv3M';
+    const db = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // ===== وضعیت =====
+    let currentTab = 'best';
+    let currentLevel = 'all';
+    let allData = [];
+
+    // ===== پاک‌سازی XSS =====
+    function sanitizeText(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(String(str)));
+        return div.innerHTML;
+    }
+
+    // ===== تبدیل زمان =====
+    function formatTime(seconds) {
+        if (!seconds && seconds !== 0) return '--:--';
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    // ===== حرف اول اسم برای آواتار =====
+    function getInitial(name) {
+        if (!name) return '?';
+        return sanitizeText(name.trim().charAt(0));
+    }
+
+    // ===== بارگذاری داده از Supabase =====
+    window.loadData = async function () {
+        const refreshBtn = document.getElementById('refresh-btn');
+        refreshBtn.classList.add('spinning');
+        showLoading();
+
+        try {
+            const { data, error } = await db
+                .from('player')
+                .select('name, level_name, time, mistakes, created_at')
+                .order(currentTab === 'best' ? 'time' : 'created_at', { ascending: currentTab === 'best' ? true : false })
+                .limit(100);
+
+            if (error) throw error;
+
+            allData = data || [];
+            renderData();
+        } catch (err) {
+            showError();
+        } finally {
+            refreshBtn.classList.remove('spinning');
+        }
+    };
+
+    // ===== فیلتر بر اساس چالش =====
+    window.filterByLevel = function (level, btn) {
+        currentLevel = level;
+        document.querySelectorAll('.lb-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderData();
+    };
+
+    // ===== تغییر تب =====
+    window.switchTab = function (tab) {
+        currentTab = tab;
+        document.getElementById('tab-best').classList.toggle('active', tab === 'best');
+        document.getElementById('tab-recent').classList.toggle('active', tab === 'recent');
+        loadData();
+    };
+
+    // ===== رندر داده =====
+    function renderData() {
+        let filtered = allData;
+
+        if (currentLevel !== 'all') {
+            filtered = allData.filter(r => r.level_name === currentLevel);
+        }
+
+        // اگر تب بهترین زمان هست، برای هر نفر فقط بهترین رکورد رو نگه دار
+        if (currentTab === 'best') {
+            const bestMap = {};
+            filtered.forEach(r => {
+                if (!bestMap[r.name] || r.time < bestMap[r.name].time) {
+                    bestMap[r.name] = r;
+                }
+            });
+            filtered = Object.values(bestMap).sort((a, b) => a.time - b.time);
+        }
+
+        if (filtered.length === 0) {
+            showEmpty();
+            return;
+        }
+
+        const content = document.getElementById('lb-content');
+        let html = '';
+
+        // شمارنده
+        html += `<div class="lb-count">مجموع <strong>${filtered.length}</strong> نتیجه</div>`;
+
+        // سه نفر اول (فقط وقتی فیلتر خاصی نداریم یا داده کافی هست)
+        if (filtered.length >= 1) {
+            html += buildPodium(filtered.slice(0, 3));
+        }
+
+        // بقیه نفرات
+        if (filtered.length > 3) {
+            html += '<div class="lb-list">';
+            filtered.slice(3).forEach((record, index) => {
+                html += buildRow(record, index + 4);
+            });
+            html += '</div>';
+        }
+
+        content.innerHTML = html;
+    }
+
+    // ===== سکو سه نفر اول =====
+    function buildPodium(top) {
+        const classes = ['first', 'second', 'third'];
+        const medals = ['🥇', '🥈', '🥉'];
+        const ranks = [1, 2, 3];
+
+        let html = '<div class="lb-podium">';
+
+        // ترتیب نمایش: دوم، اول، سوم
+        const order = top.length === 1 ? [0] : top.length === 2 ? [1, 0] : [1, 0, 2];
+
+        order.forEach(i => {
+            if (!top[i]) return;
+            const r = top[i];
+            html += `
+                <div class="lb-podium-item ${classes[i]}">
+                    <div class="lb-podium-avatar">
+                        ${i === 0 ? '<span class="lb-podium-crown">👑</span>' : ''}
+                        ${getInitial(r.name)}
+                    </div>
+                    <div class="lb-podium-name">${sanitizeText(r.name) || 'ناشناس'}</div>
+                    <div class="lb-podium-time">${formatTime(r.time)}</div>
+                    <div class="lb-podium-base">${medals[i]}</div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        return html;
+    }
+
+    // ===== ردیف جدول =====
+    function buildRow(record, rank) {
+        const mistakesText = record.mistakes === 0
+            ? '<span style="color:#22c55e">بدون اشتباه</span>'
+            : `<span>${record.mistakes}</span> اشتباه`;
+
+        return `
+            <div class="lb-row">
+                <div class="lb-rank">${rank}</div>
+                <div class="lb-row-avatar">${getInitial(record.name)}</div>
+                <div class="lb-row-info">
+                    <div class="lb-row-name">${sanitizeText(record.name) || 'ناشناس'}</div>
+                    <div class="lb-row-level">${sanitizeText(record.level_name) || 'نامشخص'}</div>
+                </div>
+                <div class="lb-row-stats">
+                    <div class="lb-row-time">${formatTime(record.time)}</div>
+                    <div class="lb-row-mistakes">${mistakesText}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ===== حالت‌های مختلف =====
+    function showLoading() {
+        document.getElementById('lb-content').innerHTML = `
+            <div class="lb-loading">
+                <div class="lb-spinner"></div>
+                <span>در حال بارگذاری...</span>
+            </div>
+        `;
+    }
+
+    function showError() {
+        document.getElementById('lb-content').innerHTML = `
+            <div class="lb-error">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <p>اتصال به سرور برقرار نشد</p>
+                <p style="margin-top:8px; font-size:12px;">اینترنت خود را بررسی کنید</p>
+            </div>
+        `;
+    }
+
+    function showEmpty() {
+        document.getElementById('lb-content').innerHTML = `
+            <div class="lb-empty">
+                <div style="font-size:48px; margin-bottom:12px;">🎯</div>
+                <p>هنوز نتیجه‌ای برای این چالش ثبت نشده</p>
+            </div>
+        `;
+    }
+
+    // ===== شروع =====
+    loadData();
+})();
+</script>
+</body>
+</html>
