@@ -4,6 +4,52 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhZ3Vlc2JtbWFhZWVyZmt6ZG5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDA3MDEsImV4cCI6MjA5ODY3NjcwMX0.9WFow53Vx-4y-6rS5lfD_UwsUxchLQcWkGmGOzDlv3M'; 
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
+    // === ثبت خودکار خطاهای جاوااسکریپت (برای عیب‌یابی سریع‌تر مشکلات کاربرا) ===
+    (function setupErrorLogging() {
+        const MAX_LOGS_PER_SESSION = 5; // جلوی اسپم‌شدن دیتابیس رو بگیر (مثلاً خطا داخل یه حلقه/تایمر)
+        const loggedMessages = new Set();
+        let logCount = 0;
+
+        function sendErrorLog(payload) {
+            if (logCount >= MAX_LOGS_PER_SESSION) return;
+
+            const dedupeKey = `${payload.message}|${payload.lineno}`;
+            if (loggedMessages.has(dedupeKey)) return;
+            loggedMessages.add(dedupeKey);
+            logCount++;
+
+            supabaseClient.from('error_logs').insert([{
+                message: (payload.message || '').slice(0, 2000),
+                source: payload.source || null,
+                lineno: payload.lineno || null,
+                colno: payload.colno || null,
+                stack: (payload.stack || '').slice(0, 4000),
+                page: location.pathname.split('/').pop() || 'index.html',
+                player_name: (typeof playerName !== 'undefined' && playerName) ? playerName : null,
+                user_agent: navigator.userAgent,
+                screen_size: `${window.innerWidth}x${window.innerHeight}`
+            }]).then(() => {}).catch(() => {}); // عمداً بی‌صدا؛ نباید خودش باعث خطای جدید بشه
+        }
+
+        window.addEventListener('error', function (e) {
+            sendErrorLog({
+                message: e.message,
+                source: e.filename ? e.filename.split('/').pop() : null,
+                lineno: e.lineno,
+                colno: e.colno,
+                stack: e.error && e.error.stack ? e.error.stack : null
+            });
+        });
+
+        window.addEventListener('unhandledrejection', function (e) {
+            const reason = e.reason;
+            sendErrorLog({
+                message: 'Unhandled Promise Rejection: ' + (reason && reason.message ? reason.message : String(reason)),
+                stack: reason && reason.stack ? reason.stack : null
+            });
+        });
+    })();
+
     // تابع ارسال اطلاعات به سرور ابری
     async function saveRecordToCloud(levelTitle, timeElapsed, mistakeCount, scoreCount) {
         try {

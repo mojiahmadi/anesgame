@@ -256,6 +256,25 @@
             border-radius: 6px;
         }
         .skeleton-row td { padding: 18px 20px; }
+
+        .error-logs-details {
+            background: rgba(255, 59, 92, 0.03);
+            border: 1px solid rgba(255, 59, 92, 0.15);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-top: 24px;
+        }
+        .error-logs-details summary {
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 14px;
+            color: var(--slate-400);
+            list-style: none;
+        }
+        .error-logs-details summary::-webkit-details-marker { display: none; }
+        .error-logs-details[open] summary { color: white; margin-bottom: 4px; }
+        .error-log-msg { color: #FF7B93; font-size: 12.5px; max-width: 320px; white-space: normal; word-break: break-word; }
+        .error-log-meta { color: var(--slate-400); font-size: 12px; }
     </style>
 </head>
 <body>
@@ -354,6 +373,26 @@
             </table>
         </div>
 
+        <details class="error-logs-details">
+            <summary>🐞 خطاهای اخیر کلاینت (<span id="error-logs-count">۰</span>)</summary>
+            <div class="table-container" style="margin-top:16px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>زمان</th>
+                            <th>پیام خطا</th>
+                            <th>صفحه</th>
+                            <th>بازیکن</th>
+                            <th>دستگاه/مرورگر</th>
+                        </tr>
+                    </thead>
+                    <tbody id="error-log-body">
+                        <tr><td colspan="5" class="loading-text" style="padding:20px;font-size:14px;">در حال بررسی...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
     </div>
 
     <script>
@@ -394,6 +433,7 @@
                 document.getElementById('admin-login-screen').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 fetchAdminData();
+                fetchErrorLogs();
             }
         }
 
@@ -409,6 +449,7 @@
                 document.getElementById('admin-login-screen').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
                 fetchAdminData();
+                fetchErrorLogs();
             }
         }
 
@@ -421,6 +462,43 @@
         async function logoutAdmin() {
             await supabaseClient.auth.signOut();
             location.reload(); 
+        }
+
+        // === بخش خطاهای اخیر کلاینت ===
+        async function fetchErrorLogs() {
+            const tbody = document.getElementById('error-log-body');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('error_logs')
+                    .select('message, page, player_name, user_agent, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                document.getElementById('error-logs-count').innerText = (data || []).length.toLocaleString('fa-IR');
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="loading-text" style="padding:20px;font-size:14px;color:var(--emerald);">هیچ خطایی ثبت نشده 🎉</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(row => {
+                    const date = new Date(row.created_at).toLocaleString('fa-IR', { dateStyle: 'short', timeStyle: 'short' });
+                    const device = (row.user_agent || '').match(/iPhone|iPad|Android|Windows|Macintosh|Linux/)?.[0] || 'نامشخص';
+                    return `<tr>
+                        <td class="error-log-meta">${date}</td>
+                        <td class="error-log-msg">${(row.message || '').replace(/</g, '&lt;')}</td>
+                        <td class="error-log-meta">${row.page || '-'}</td>
+                        <td class="error-log-meta">${row.player_name || '-'}</td>
+                        <td class="error-log-meta">${device}</td>
+                    </tr>`;
+                }).join('');
+
+            } catch (err) {
+                console.error('خطا در دریافت لاگ خطاها:', err);
+                tbody.innerHTML = '<tr><td colspan="5" class="loading-text" style="padding:20px;font-size:14px;color:#FF3B5C;">خطا در دریافت لاگ‌ها</td></tr>';
+            }
         }
 
         
