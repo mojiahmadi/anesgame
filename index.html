@@ -334,6 +334,19 @@
         </div>
     </div>
 
+    <div id="onboarding-modal" class="modal-overlay hidden">
+        <div class="modal-content onboarding-content">
+            <button class="onboarding-skip" onclick="skipOnboarding()">رد کردن ✕</button>
+            <div class="success-icon-wrap" id="onboarding-icon-wrap"></div>
+            <h2 id="onboarding-title">قدم ۱</h2>
+            <p id="onboarding-desc">توضیحات</p>
+            <div class="onboarding-dots" id="onboarding-dots"></div>
+            <div class="modal-actions">
+                <button class="btn-next" id="onboarding-next-btn" onclick="nextOnboardingStep()">بعدی</button>
+            </div>
+        </div>
+    </div>
+
     <div id="daily-reward-modal" class="modal-overlay hidden">
         <div class="modal-content daily-reward-content">
             <div class="success-icon-wrap daily-reward-icon-wrap">

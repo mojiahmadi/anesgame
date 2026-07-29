@@ -893,6 +893,44 @@ body {
     50%       { box-shadow: 0 0 0 16px rgba(48,217,147,.16), 0 0 0 32px rgba(48,217,147,.08); }
 }
 
+/* --- مودال آموزش تعاملی (Onboarding) --- */
+.onboarding-content { position: relative; }
+
+.onboarding-skip {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    background: transparent;
+    border: none;
+    color: var(--slate-400);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: color .2s, background .2s;
+}
+.onboarding-skip:hover { color: var(--slate-100); background: rgba(255,255,255,.06); }
+
+.onboarding-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 18px 0 4px;
+}
+.onboarding-dots .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    transition: all .3s ease;
+}
+.onboarding-dots .dot.active {
+    background: var(--vivid-red);
+    width: 22px;
+    border-radius: 5px;
+}
+
 .timeout-icon-wrap {
     width: 110px; height: 110px;
     background: radial-gradient(circle, rgba(255,59,92,.28), rgba(255,59,92,.08));
@@ -1019,8 +1057,8 @@ body {
 
 .coin-toast {
     position: fixed;
-    top: 128px;
-    left: 18px;
+    top: 24px;
+    right: 18px;
     z-index: 1100;
     background: rgba(48,84,88,.85);
     backdrop-filter: blur(16px);

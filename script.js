@@ -134,7 +134,7 @@ function processAchievementQueue() {
 
 // ساخت و نمایش رابط کاربری مدال‌ها
 function openAchievementsModal() {
-    document.getElementById('user-menu-dropdown').classList.remove('active');
+    closeUserMenuPanel();
     const grid = document.getElementById('achievements-grid');
     grid.innerHTML = '';
 
@@ -393,7 +393,7 @@ function closeAchievementsModal() {
     }
 
     function openProfileModal() {
-        document.getElementById('user-menu-dropdown').classList.remove('active');
+        closeUserMenuPanel();
         document.getElementById('profile-student-id').value = playerStudentId;
         document.getElementById('profile-email').value = playerEmail;
         document.getElementById('profile-modal').classList.remove('hidden');
@@ -414,7 +414,7 @@ function closeAchievementsModal() {
 
     // ======= تنظیمات =======
     function openSettingsModal() {
-        document.getElementById('user-menu-dropdown').classList.remove('active');
+        closeUserMenuPanel();
         refreshSoundToggleUI();
         document.getElementById('settings-modal').classList.remove('hidden');
     }
@@ -446,6 +446,7 @@ function closeAchievementsModal() {
         localStorage.removeItem(coinsStorageKey(playerName));
         localStorage.removeItem(streakStorageKey(playerName));
         localStorage.removeItem(progressStorageKey(playerName));
+        localStorage.removeItem(onboardingStorageKey());
 
         loadOrInitCoins(playerName);
         completedLevels = [];
@@ -493,7 +494,7 @@ function closeAchievementsModal() {
     }
 
     function openAvatarPicker() {
-        document.getElementById('user-menu-dropdown').classList.remove('active');
+        closeUserMenuPanel();
         document.getElementById('avatar-upload-error').classList.add('hidden');
         buildAvatarGrid();
         document.getElementById('avatar-modal').classList.remove('hidden');
@@ -640,6 +641,12 @@ function closeAchievementsModal() {
     }
 
     
+    function closeUserMenuPanel() {
+        document.getElementById('user-menu-dropdown').classList.remove('active');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+
     function toggleUserMenu() {
         const dropdown = document.getElementById('user-menu-dropdown');
         const overlay = document.getElementById('sidebar-overlay');
@@ -677,7 +684,7 @@ function closeAchievementsModal() {
         clearInterval(timerInterval);
         isConfettiActive = false;
 
-        document.getElementById('user-menu-dropdown').classList.remove('active');
+        closeUserMenuPanel();
         document.getElementById('user-menu').classList.add('hidden');
         document.getElementById('coin-badge').classList.add('hidden');
         document.getElementById('daily-reward-btn').classList.add('hidden');
@@ -735,6 +742,19 @@ function closeAchievementsModal() {
     function showCoinToast(text) {
         const toast = document.getElementById('coin-toast');
         toast.innerText = text;
+
+        // موقعیت toast رو دقیقاً کنار محل واقعی کیف‌پول (یا آواتار به‌عنوان جایگزین) قرار بده
+        let anchor = document.getElementById('coin-badge');
+        if (!anchor || anchor.offsetParent === null) {
+            anchor = document.querySelector('.nav-profile-btn');
+        }
+        if (anchor && anchor.offsetParent !== null) { // یعنی واقعاً روی صفحه دیده میشه (display:none نیست)
+            const rect = anchor.getBoundingClientRect();
+            toast.style.top = (rect.bottom + 10) + 'px';
+            toast.style.right = (window.innerWidth - rect.right) + 'px';
+            toast.style.left = 'auto';
+        }
+
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 2200);
     }
@@ -760,6 +780,11 @@ function goToLogin() {
         errorEl.classList.add('hidden');
 
         playerName = nameInput.trim() ? nameInput : "دانشجوی عزیز";
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('menu-screen').classList.remove('hidden');
+        document.getElementById('main-header').classList.remove('hidden');
+
         loadOrInitCoins(playerName);
         loadOrInitProfile(playerName, phoneInput);
         loadCompletedLevels(playerName);
@@ -768,13 +793,6 @@ function goToLogin() {
         renderAvatarUI();
         document.getElementById('daily-reward-btn').classList.remove('hidden');
         refreshDailyRewardUI();
-
-        document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('menu-screen').classList.remove('hidden');
-
-        
-        
-document.getElementById('main-header').classList.remove('hidden');
     }
 
     function formatTime(s) {
@@ -809,11 +827,123 @@ document.getElementById('main-header').classList.remove('hidden');
         });
     }
 
+    // === آموزش تعاملی برای اولین بار (Onboarding) ===
+    function onboardingStorageKey() {
+        return 'anesPuzzle_onboarding_seen_' + (playerName || 'guest').trim().toLowerCase();
+    }
+
+    function hasSeenOnboarding() {
+        return localStorage.getItem(onboardingStorageKey()) === '1';
+    }
+
+    let onboardingStep = 0;
+
+    function getOnboardingSteps() {
+        const isMobileInput = window.matchMedia('(max-width: 860px)').matches;
+        if (isMobileInput) {
+            return [
+                {
+                    icon: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--vivid-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+                    title: 'قدم ۱: یه گزینه رو انتخاب کن',
+                    desc: 'روی هرکدوم از قطعات توی لیست بزن. با یه حاشیه‌ی قرمز نشون می‌ده که انتخاب شده.'
+                },
+                {
+                    icon: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>`,
+                    title: 'قدم ۲: جای درستش رو بزن',
+                    desc: 'جاهای خالی سمت راست که آماده‌ی گذاشتنن، یه نور سبز ملایم دارن. روی جایی که فکر می‌کنی درسته بزن.'
+                },
+                {
+                    icon: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.6L22 9.3l-5 4.9 1.2 7.1L12 17.8l-6.2 3.5L7 14.2 2 9.3l7.1-.7L12 2z"/></svg>`,
+                    title: 'قدم ۳: تمومش کن!',
+                    desc: 'اگه اشتباه بزنی مشکلی نیست، فقط یه‌کم زمان کم می‌شه. همه‌ی قطعات رو به ترتیب درست بچین تا مرحله تموم بشه.'
+                }
+            ];
+        }
+        return [
+            {
+                icon: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--vivid-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>`,
+                title: 'قدم ۱: قطعه رو بگیر',
+                desc: 'با ماوس روی هرکدوم از گزینه‌های سمت چپ کلیک نگه‌دار و بکش.'
+            },
+            {
+                icon: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>`,
+                title: 'قدم ۲: توی جای درست رهاش کن',
+                desc: 'قطعه رو روی جای خالی که فکر می‌کنی درسته بکش و رها کن.'
+            },
+            {
+                icon: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.6L22 9.3l-5 4.9 1.2 7.1L12 17.8l-6.2 3.5L7 14.2 2 9.3l7.1-.7L12 2z"/></svg>`,
+                title: 'قدم ۳: تمومش کن!',
+                desc: 'اگه اشتباه بذاری مشکلی نیست، فقط یه‌کم زمان کم می‌شه. همه‌ی قطعات رو به ترتیب درست بچین تا مرحله تموم بشه.'
+            }
+        ];
+    }
+
+    function showOnboarding() {
+        onboardingStep = 0;
+        document.getElementById('onboarding-modal').classList.remove('hidden');
+        renderOnboardingStep();
+    }
+
+    function renderOnboardingStep() {
+        const steps = getOnboardingSteps();
+        const step = steps[onboardingStep];
+
+        document.getElementById('onboarding-icon-wrap').innerHTML = step.icon;
+        document.getElementById('onboarding-title').innerText = step.title;
+        document.getElementById('onboarding-desc').innerText = step.desc;
+
+        const dotsWrap = document.getElementById('onboarding-dots');
+        dotsWrap.innerHTML = steps.map((_, i) =>
+            `<span class="dot${i === onboardingStep ? ' active' : ''}"></span>`
+        ).join('');
+
+        const nextBtn = document.getElementById('onboarding-next-btn');
+        nextBtn.innerText = (onboardingStep === steps.length - 1) ? 'بزن بریم! 🚀' : 'بعدی';
+    }
+
+    function nextOnboardingStep() {
+        const steps = getOnboardingSteps();
+        if (onboardingStep < steps.length - 1) {
+            onboardingStep++;
+            renderOnboardingStep();
+        } else {
+            finishOnboarding();
+        }
+    }
+
+    function skipOnboarding() {
+        finishOnboarding();
+    }
+
+    function finishOnboarding() {
+        document.getElementById('onboarding-modal').classList.add('hidden');
+        localStorage.setItem(onboardingStorageKey(), '1');
+
+        if (pendingStartLevelIndex !== null) {
+            const idx = pendingStartLevelIndex;
+            pendingStartLevelIndex = null;
+            actuallyStartGame(idx);
+        }
+    }
+
+    let pendingStartLevelIndex = null;
+
     function startGame(levelIndex) {
         if (!isLevelUnlocked(levelIndex)) {
             showCoinToast('🔒 اول باید مرحله قبل رو تموم کنی');
             return;
         }
+
+        if (!hasSeenOnboarding()) {
+            pendingStartLevelIndex = levelIndex;
+            showOnboarding();
+            return;
+        }
+
+        actuallyStartGame(levelIndex);
+    }
+
+    function actuallyStartGame(levelIndex) {
         currentLevelIndex = levelIndex;
         correctPlacements = 0;
         secondsElapsed = 0;
