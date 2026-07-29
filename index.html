@@ -127,7 +127,7 @@
             <h2>ورود به پلتفرم</h2>
             <p>دانشجوی عزیز، برای ثبت رکوردها لطفاً مشخصات خود را وارد کنید.</p>
             
-            <form onsubmit="handleLogin(event)">
+            <form onsubmit="handleLogin(event)" novalidate>
                 <input type="text" id="player-name" class="login-input" placeholder="نام و نام خانوادگی" required autocomplete="off">
                 <input type="tel" id="player-phone" class="login-input" placeholder="شماره موبایل" pattern="09\d{9}" maxlength="11" required autocomplete="off" inputmode="numeric" dir="ltr" style="text-align:center;">
                 <p id="login-error" class="login-error hidden">شماره موبایل را به‌صورت صحیح وارد کنید.</p>
