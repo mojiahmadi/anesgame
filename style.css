@@ -154,6 +154,18 @@ body {
 
 .nav-user-menu { position: relative; }
 
+/* --- نسخه‌ی فشرده‌ی نوار بالا برای موبایل --- */
+@media (max-width: 600px) {
+    .glass-navbar { top: 12px; padding: 0 10px; height: 56px; }
+    .nav-title { display: none; } /* فقط لوگو بمونه، متن حذف بشه تا جا باز شه */
+    .nav-logo { width: 34px; height: 34px; }
+    .nav-actions { gap: 6px; }
+    .nav-item-btn { width: 38px; height: 38px; }
+    .nav-item-btn svg { width: 18px; height: 18px; }
+    .nav-item-pill { padding: 0 10px; height: 36px; gap: 5px; font-size: 13px; }
+    .nav-item-pill svg { width: 16px; height: 16px; }
+}
+
 .nav-profile-btn {
     background: transparent; 
     border: none;
