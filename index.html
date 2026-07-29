@@ -52,6 +52,13 @@
 <canvas id="confetti-canvas"></canvas>
 
 <div id="coin-toast" class="coin-toast"></div>
+<div id="rank-up-toast" class="rank-up-toast">
+    <div class="rank-up-toast-icon">🌟</div>
+    <div>
+        <div class="rank-up-toast-title">ترفیع رتبه!</div>
+        <div class="rank-up-toast-sub" id="rank-up-toast-sub">رتبه ۲: کارآموز</div>
+    </div>
+</div>
 
 
 <nav id="main-header" class="glass-navbar hidden fade-on-scroll">
@@ -406,10 +413,6 @@
     <div id="settings-modal" class="modal-overlay hidden">
         <div class="modal-content settings-modal-content">
             <h2>تنظیمات</h2>
-            <div class="user-menu-item" style="cursor:pointer;" onclick="openAchievementsModal()">
-    <span>افتخارات من</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15l-3.09 1.63.59-3.45L7 10.7l3.46-.5L12 7l1.54 3.2 3.46.5-2.5 2.48.59 3.45L12 15z"/><circle cx="12" cy="12" r="10"/></svg>
-</div>
             <p>ترجیحات بازی رو از اینجا مدیریت کن.</p>
 
             <div class="settings-row">
@@ -494,6 +497,17 @@
                 <div class="user-menu-name" id="user-menu-name">-</div>
                 <div class="user-menu-sub">حساب کاربری</div>
             </div>
+        </div>
+
+        <div class="user-menu-rank-box">
+            <div class="user-menu-rank-top">
+                <span id="user-menu-rank-name">دانشجوی تازه‌کار</span>
+                <span id="user-menu-rank-badge">رتبه ۱</span>
+            </div>
+            <div class="rank-progress-track">
+                <div class="rank-progress-fill" id="rank-progress-fill" style="width:0%"></div>
+            </div>
+            <div class="rank-progress-label" id="rank-progress-label">۰ / ۱۰۰ XP</div>
         </div>
 
         <div class="user-menu-item">

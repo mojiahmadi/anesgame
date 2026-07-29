@@ -359,6 +359,80 @@ function closeAchievementsModal() {
         return true;
     }
 
+    // === سیستم رتبه و XP (امتیاز تجربه‌ی کلی، برخلاف سکه هیچ‌وقت خرج/کم نمیشه) ===
+    let playerXP = 0;
+
+    const RANK_TITLES = [
+        'دانشجوی تازه‌کار', 'کارآموز بالینی', 'دستیار فعال', 'رزیدنت باتجربه',
+        'متخصص در حال آموزش', 'فوق‌تخصص', 'استاد بالین', 'افسانه‌ی بیهوشی'
+    ];
+
+    function xpStorageKey(name) {
+        return 'anesPuzzle_xp_' + name.trim().toLowerCase();
+    }
+
+    // مجموع XP لازم برای رسیدن به یه رتبه‌ی مشخص (منحنی مثلثی: هرچی بالاتر بری، فاصله‌ی بعدی بیشتره)
+    function xpNeededForRank(rank) {
+        return 100 * rank * (rank - 1) / 2;
+    }
+
+    function getRankInfo(xp) {
+        let rank = 1;
+        while (xp >= xpNeededForRank(rank + 1)) rank++;
+
+        const currentThreshold = xpNeededForRank(rank);
+        const nextThreshold = xpNeededForRank(rank + 1);
+        const title = RANK_TITLES[Math.min(rank - 1, RANK_TITLES.length - 1)];
+
+        return {
+            rank,
+            title,
+            xpIntoRank: xp - currentThreshold,
+            xpForNextRank: nextThreshold - currentThreshold
+        };
+    }
+
+    function loadOrInitXP(name) {
+        playerXP = parseInt(localStorage.getItem(xpStorageKey(name)), 10) || 0;
+        updateXPDisplay();
+    }
+
+    function addXP(amount) {
+        if (amount <= 0) return;
+        const oldRank = getRankInfo(playerXP).rank;
+
+        playerXP += amount;
+        localStorage.setItem(xpStorageKey(playerName), playerXP);
+        updateXPDisplay();
+
+        const newRank = getRankInfo(playerXP).rank;
+        if (newRank > oldRank) celebrateRankUp(newRank);
+    }
+
+    function updateXPDisplay() {
+        const info = getRankInfo(playerXP);
+        const nameEl = document.getElementById('user-menu-rank-name');
+        const badgeEl = document.getElementById('user-menu-rank-badge');
+        const fillEl = document.getElementById('rank-progress-fill');
+        const labelEl = document.getElementById('rank-progress-label');
+        if (!nameEl) return;
+
+        nameEl.innerText = info.title;
+        badgeEl.innerText = `رتبه ${info.rank}`;
+        const pct = info.xpForNextRank > 0 ? Math.min(100, (info.xpIntoRank / info.xpForNextRank) * 100) : 100;
+        fillEl.style.width = pct + '%';
+        labelEl.innerText = `${info.xpIntoRank} / ${info.xpForNextRank} XP`;
+    }
+
+    function celebrateRankUp(newRank) {
+        const info = getRankInfo(xpNeededForRank(newRank)); // فقط برای گرفتن عنوان رتبه جدید
+        const toast = document.getElementById('rank-up-toast');
+        document.getElementById('rank-up-toast-sub').innerText = `رتبه ${newRank}: ${info.title}`;
+        toast.classList.add('show');
+        playSfx('win');
+        setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
     function updateCoinDisplay() {
         const badge = document.getElementById('coin-badge');
         const countEl = document.getElementById('coin-count');
@@ -493,8 +567,10 @@ function closeAchievementsModal() {
         localStorage.removeItem(streakStorageKey(playerName));
         localStorage.removeItem(progressStorageKey(playerName));
         localStorage.removeItem(onboardingStorageKey());
+        localStorage.removeItem(xpStorageKey(playerName));
 
         loadOrInitCoins(playerName);
+        loadOrInitXP(playerName);
         completedLevels = [];
         updateLevelLocks();
         refreshDailyRewardUI();
@@ -832,6 +908,7 @@ function goToLogin() {
         document.getElementById('main-header').classList.remove('hidden');
 
         loadOrInitCoins(playerName);
+        loadOrInitXP(playerName);
         loadOrInitProfile(playerName, phoneInput);
         loadCompletedLevels(playerName);
         loadAchievements(playerName);
@@ -1400,6 +1477,12 @@ function goToLogin() {
             ? '🙂 این مرحله رو قبلاً تموم کرده بودی — این بار برای تمرین بود، سکه‌ای اضافه نمی‌گیری'
             : `+${earned} سکه`;
         markLevelCompleted(currentLevelIndex);
+
+        // --- بخش XP و رتبه ---
+        let xpEarned = alreadyCompletedBefore ? 15 : 60; // اولین بار پاداش بیشتری داره
+        if (mistakes === 0) xpEarned += 20; // پاداش بی‌خطا
+        if (secondsElapsed < gameLevels[currentLevelIndex].timeLimit / 2) xpEarned += 15; // پاداش سرعت
+        addXP(xpEarned);
 
         // --- بخش بررسی افتخارات ---
         unlockAchievement('first_step'); 
