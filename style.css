@@ -71,71 +71,123 @@ body {
     margin-right: 6px;
 }
 
-header {
-    background: linear-gradient(135deg, rgba(138,15,42,.55) 0%, rgba(200,18,55,.4) 50%, rgba(255,59,92,.3) 100%);
-    backdrop-filter: blur(24px) saturate(160%);
-    -webkit-backdrop-filter: blur(24px) saturate(160%);
-    color: white;
-    padding: 28px 30px 32px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    border-bottom: 1px solid rgba(255,255,255,.08);
-    box-shadow: 0 8px 40px rgba(0,0,0,.5);
+
+.glass-navbar {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 1220px;
+    height: 64px;
+    background: rgba(10, 14, 23, 0.45);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 1000;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+.nav-brand { display: flex; align-items: center; gap: 12px; }
+
+.nav-logo {
+    width: 38px;
+    height: 38px;
+    background: rgba(255, 59, 92, 0.1);
+    border: 1px solid rgba(255, 59, 92, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(255, 59, 92, 0.2);
 }
 
-.header-icon-wrap {
-    position: relative;
-    display: inline-block;
-    margin-left: 14px;
-    vertical-align: middle;
-}
+.nav-logo svg { width: 22px; height: 22px; }
 
-.header-icon-wrap::after {
-    content: '';
-    position: absolute;
-    inset: -6px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,200,210,.5);
-    animation: pulseRing 2s ease-out infinite;
-}
-
-@keyframes pulseRing {
-    0%   { transform: scale(1);   opacity: .8; }
-    100% { transform: scale(1.8); opacity: 0; }
-}
-
-header h1 {
-    font-size: clamp(24px, 5vw, 36px);
-    font-weight: 900;
-    text-shadow: 0 2px 16px rgba(0,0,0,.4);
+.nav-title {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
     letter-spacing: -0.5px;
+}
+
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+
+.nav-item-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 44px; /* حداقل ۴۴px برای هدف تاچ مناسب طبق استاندارد اپل/گوگل */
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
     position: relative;
+    transition: all 0.2s ease;
+    color: var(--slate-400);
+}
+
+.nav-item-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); color: var(--white); }
+.nav-item-btn svg { width: 22px; height: 22px; }
+
+.nav-item-pill {
+    background: rgba(255, 184, 77, 0.1);
+    border: 1px solid rgba(255, 184, 77, 0.2);
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--amber);
+    font-weight: 800;
+    font-size: 15px;
+}
+
+.nav-item-pill svg { width: 20px; height: 20px; }
+
+.nav-user-menu { position: relative; }
+
+.nav-profile-btn {
+    background: transparent; 
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%; 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 15px rgba(255, 59, 92, 0.3); 
+    padding: 0;
+}
+
+.nav-profile-btn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 20px rgba(255, 59, 92, 0.45); 
+}
+
+.nav-profile-btn .user-menu-btn-avatar { 
+    width: 100%; 
+    height: 100%; 
+    border-radius: 50%; 
+    overflow: hidden; 
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.header-subtitle {
-    font-size: 14px;
-    font-weight: 300;
-    opacity: .8;
-    margin-top: 6px;
-    letter-spacing: .5px;
-    position: relative;
-}
-
 .container {
     max-width: 1220px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 110px 40px 20px;
     flex-grow: 1;
     width: 100%;
 }
@@ -157,46 +209,35 @@ header h1 {
     pointer-events: auto !important;
 }
 
+
+
 #login-screen {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 50vh;
+    min-height: 70vh; 
+    position: relative;
+    z-index: 1;
 }
 
-
 .login-card {
-    background: rgba(255, 255, 255, 0.06);
+    
+    background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(40px) saturate(180%);
     -webkit-backdrop-filter: blur(40px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     padding: 45px 35px;
-    border-radius: 32px;
+    border-radius: 32px; 
     text-align: center;
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     position: relative;
-    overflow: hidden;
-    animation: popIn 0.6s cubic-bezier(.175,.885,.32,1.275);
+    animation: popInLobby 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 
 .login-card::before { display: none; }
-
-.login-card h2 {
-    color: white; 
-    font-weight: 900;
-    margin-bottom: 8px;
-    font-size: 26px;
-}
-
-.login-card p {
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 28px;
-    font-size: 14.5px;
-    line-height: 1.6;
-}
 
 
 .login-icon {
@@ -210,19 +251,41 @@ header h1 {
     align-items: center;
     justify-content: center;
     box-shadow: 0 10px 25px rgba(255, 59, 92, 0.15), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    transform: rotate(45deg); 
+    overflow: hidden;
     color: var(--vivid-red);
 }
 
-.login-icon svg { width: 36px; height: 36px; }
 
+.login-icon svg { 
+    width: 36px; 
+    height: 36px; 
+    transform: rotate(-45deg); 
+}
+
+.login-card h2 {
+    font-size: 28px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.login-card p {
+    font-size: 14.5px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.8;
+    margin-bottom: 26px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
 
 .login-input {
     width: 100%;
     padding: 16px 20px;
     background: rgba(0, 0, 0, 0.18); 
     border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    font-size: 15px;
+    border-radius: 18px; 
+    font-size: 16px; /* حداقل 16px تا سافاری آیفون موقع فوکوس زوم خودکار نکنه */
     color: white;
     outline: none;
     margin-bottom: 16px;
@@ -232,7 +295,11 @@ header h1 {
     letter-spacing: 1px;
 }
 
-.login-input::placeholder { color: rgba(255, 255, 255, 0.5); font-weight: 400; letter-spacing: normal; }
+.login-input::placeholder { 
+    color: rgba(255, 255, 255, 0.5); 
+    font-weight: 400; 
+    letter-spacing: normal; 
+}
 
 .login-input:focus {
     border-color: var(--vivid-red);
@@ -248,7 +315,7 @@ header h1 {
     padding: 16px;
     font-size: 16px;
     font-weight: 800;
-    border-radius: 16px; /* هماهنگ شدن با فیلدها */
+    border-radius: 18px;
     cursor: pointer;
     width: 100%;
     position: relative;
@@ -277,12 +344,20 @@ header h1 {
     box-shadow: 0 15px 35px rgba(214, 26, 64, 0.45); 
 }
 
-.btn-login:hover::before { left: 150%; }
+.btn-login:hover::before { 
+    left: 150%; 
+}
 
-.btn-login svg { transition: transform 0.3s ease; }
-.btn-login:hover svg { transform: translateX(-6px); }
+.btn-login svg { 
+    transition: transform 0.3s ease; 
+    width: 18px; 
+    height: 18px;
+}
 
-/* ارور لاگین */
+.btn-login:hover svg { 
+    transform: translateX(-6px); 
+}
+
 .login-error {
     color: #FF6B81;
     font-size: 13px;
@@ -299,19 +374,7 @@ header h1 {
     gap: 28px;
 }
 
-.welcome-msg {
-    background: var(--blush);
-    color: var(--accent-ink);
-    padding: 10px 25px;
-    border-radius: 50px;
-    font-size: 18px;
-    font-weight: 800;
-    border: 1px solid var(--glass-border);
-    margin-bottom: 10px;
-    animation: cardIn 0.5s ease;
-    display: flex;
-    align-items: center;
-}
+
 
 .menu-header-text { text-align: center; }
 
@@ -601,6 +664,12 @@ header h1 {
     .progress-bar-wrap { margin-left: auto; margin-right: auto; }
 }
 
+/* گوشی‌های خیلی کوچیک (مثل آیفون SE، عرض ۳۷۵px و کمتر) */
+@media (max-width: 380px) {
+    .login-card { padding: 32px 20px; border-radius: 24px; }
+    .modal-content { padding: 32px 20px 28px; border-radius: 22px; }
+}
+
 .draggables-panel, .drop-targets-panel {
     background: var(--glass);
     backdrop-filter: blur(20px) saturate(150%);
@@ -660,6 +729,30 @@ header h1 {
 }
 
 .layer-item:active { cursor: grabbing; transform: scale(.98); }
+
+/* --- حالت لمس-برای-جایگذاری (موبایل) --- */
+.layer-item.tap-mode {
+    touch-action: manipulation; /* برخلاف حالت درگ، اسکرول عادی صفحه بسته نشه */
+    cursor: pointer;
+}
+
+.layer-item.tap-selected {
+    border-color: var(--vivid-red);
+    background: rgba(255, 59, 92, 0.12);
+    box-shadow: 0 0 0 3px rgba(255, 59, 92, 0.22);
+    transform: scale(1.02);
+}
+
+.drop-zone.tap-armed {
+    border-color: var(--emerald);
+    background: rgba(48, 217, 147, 0.08);
+    animation: tapArmedPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tapArmedPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(48, 217, 147, 0.22); }
+    50% { box-shadow: 0 0 0 7px rgba(48, 217, 147, 0.1); }
+}
 
 .dragging-touch {
     position: fixed;
@@ -1074,29 +1167,6 @@ header h1 {
 .user-menu-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .user-menu-btn svg { width: 20px; height: 20px; }
 
-.user-menu-dropdown {
-    position: absolute;
-    top: 54px;
-    right: 0;
-    background: rgba(48,84,88,.82);
-    backdrop-filter: blur(30px) saturate(160%);
-    -webkit-backdrop-filter: blur(30px) saturate(160%);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--glass-border);
-    min-width: 240px;
-    padding: 10px;
-    opacity: 0;
-    transform: translateY(-8px) scale(.97);
-    pointer-events: none;
-    transition: all .2s ease;
-}
-
-.user-menu-dropdown.open {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: auto;
-}
 
 .user-menu-header {
     display: flex;
@@ -1232,11 +1302,12 @@ header h1 {
     background: rgba(255,255,255,.05);
     border: 2px solid var(--slate-200);
     border-radius: var(--radius-sm);
-    font-size: 13px;
+    font-size: 16px; /* حداقل 16px تا سافاری آیفون موقع فوکوس زوم خودکار نکنه */
     outline: none;
     color: var(--slate-900);
     direction: ltr;
     text-align: center;
+    min-width: 0; /* اجازه بده داخل فلکس‌باکس باریک سایدبار جمع بشه */
 }
 
 .user-menu-phone-input:focus { border-color: var(--vivid-red); }
@@ -1801,4 +1872,80 @@ header h1 {
     0%, 100% { transform: translateX(0); }
     20%, 60% { transform: translateX(-8px); }
     40%, 80% { transform: translateX(8px); }
+}
+
+
+/* ========================================= */
+/* --- پنل کاربری جانبی (Sidebar) و بک‌گراند --- */
+/* ========================================= */
+
+.user-menu-dropdown {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important; /* چسبیدن دقیق به لبه سمت چپ کل صفحه */
+    width: min(320px, 88vw); /* روی گوشی‌های خیلی کوچیک کل صفحه رو نگیره */
+    height: 100dvh; /* ارتفاع پویا؛ روی موبایل زیر نوار آدرس قایم نمی‌مونه */
+    background: rgba(10, 14, 23, 0.85); /* شیشه‌ای و تاریک */
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    padding: calc(80px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+    overflow-y: auto; /* اگه ارتفاع صفحه کم بود، خودش اسکرول بخوره نه اینکه لب‌ریز بشه */
+    z-index: 9999 !important; /* بالاتر از همه چیز قرار بگیرد */
+    
+    /* تنظیمات انیمیشن باز و بسته شدن از چپ - با کمی حس فنری (spring) */
+    transform: translateX(-100%) scale(0.96) !important; 
+    opacity: 0;
+    transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) !important,
+                opacity 0.35s ease !important;
+}
+
+/* این کلاس توسط جاوااسکریپت اضافه می‌شود تا سایدبار وارد صفحه شود */
+.user-menu-dropdown.active {
+    transform: translateX(0) scale(1) !important; 
+    opacity: 1;
+}
+
+/* --- استاگر (ورود پلکانی) آیتم‌های داخل سایدبار --- */
+.user-menu-dropdown > * {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    transition-delay: 0s;
+}
+
+.user-menu-dropdown.active > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.user-menu-dropdown.active > *:nth-child(1) { transition-delay: 0.08s; }
+.user-menu-dropdown.active > *:nth-child(2) { transition-delay: 0.13s; }
+.user-menu-dropdown.active > *:nth-child(3) { transition-delay: 0.18s; }
+.user-menu-dropdown.active > *:nth-child(4) { transition-delay: 0.23s; }
+.user-menu-dropdown.active > *:nth-child(5) { transition-delay: 0.28s; }
+.user-menu-dropdown.active > *:nth-child(6) { transition-delay: 0.33s; }
+.user-menu-dropdown.active > *:nth-child(7) { transition-delay: 0.38s; }
+
+/* --- استایل پس‌زمینه مات پشت سایدبار --- */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9998; /* دقیقاً یک لایه زیر سایدبار */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease, backdrop-filter 0.4s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }

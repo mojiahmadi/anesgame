@@ -24,8 +24,8 @@
         .lb-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 16px;
+            margin-bottom: 32px;
         }
 
         .lb-back-btn {
@@ -39,31 +39,24 @@
             border: 1px solid var(--glass-border);
             color: var(--slate-900);
             cursor: pointer;
+            text-decoration: none;
             flex-shrink: 0;
             transition: background 0.2s;
         }
 
-        /* چون RTL هست، آیکون فلش باید برعکس باشه */
-        .lb-back-btn svg {
-            transform: scaleX(-1);
-        }
-
         .lb-back-btn:hover { background: var(--glass-strong); }
 
-        .lb-title-block {
-            flex: 1;
-            text-align: right;
-        }
+        .lb-title-block { flex: 1; }
 
         .lb-title-block h1 {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 900;
             color: var(--slate-900);
-            margin: 0 0 2px;
+            margin: 0 0 4px;
         }
 
         .lb-title-block p {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--slate-500);
             margin: 0;
         }
@@ -320,6 +313,29 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* --- Skeleton Loading (shimmer) --- */
+        @keyframes skeletonShimmer {
+            0% { background-position: -300px 0; }
+            100% { background-position: 300px 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.14) 37%, rgba(255,255,255,0.06) 63%);
+            background-size: 600px 100%;
+            animation: skeletonShimmer 1.6s ease-in-out infinite;
+            border-radius: 8px;
+        }
+        .lb-skeleton-podium { display: flex; align-items: flex-end; justify-content: center; gap: 12px; padding: 20px 10px 0; }
+        .lb-skeleton-podium-item { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 90px; }
+        .lb-skeleton-avatar { width: 52px; height: 52px; border-radius: 50%; }
+        .lb-skeleton-name { width: 60px; height: 12px; }
+        .lb-skeleton-base { width: 100%; border-radius: 10px 10px 0 0; }
+        .lb-skeleton-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--glass-border); }
+        .lb-skeleton-row-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+        .lb-skeleton-row-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .lb-skeleton-row-lines span:first-child { width: 40%; height: 13px; }
+        .lb-skeleton-row-lines span:last-child { width: 25%; height: 11px; }
+        .lb-skeleton-row-time { width: 50px; height: 13px; }
+
         /* خطا */
         .lb-error {
             text-align: center;
@@ -343,19 +359,20 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
+            background: none;
+            border: none;
             color: var(--slate-500);
             font-family: 'Vazirmatn', sans-serif;
             font-size: 12px;
             cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 10px;
+            padding: 6px 10px;
+            border-radius: 8px;
             transition: all 0.2s;
-            flex-shrink: 0;
+            margin-bottom: 16px;
+            margin-right: auto;
         }
 
-        .lb-refresh-btn:hover { background: var(--glass-strong); color: var(--slate-900); }
+        .lb-refresh-btn:hover { background: var(--glass); color: var(--slate-900); }
         .lb-refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
 
         /* شمارنده کل */
@@ -475,7 +492,7 @@
 
         try {
             const { data, error } = await db
-                .from('player')
+                .from('leaderboard_view')
                 .select('name, level_name, time, mistakes, created_at')
                 .order(currentTab === 'best' ? 'time' : 'created_at', { ascending: currentTab === 'best' ? true : false })
                 .limit(100);
@@ -609,11 +626,40 @@
 
     // ===== حالت‌های مختلف =====
     function showLoading() {
-        document.getElementById('lb-content').innerHTML = `
-            <div class="lb-loading">
-                <div class="lb-spinner"></div>
-                <span>در حال بارگذاری...</span>
+        const podiumSkeleton = `
+            <div class="lb-skeleton-podium">
+                <div class="lb-skeleton-podium-item">
+                    <div class="skeleton lb-skeleton-avatar"></div>
+                    <div class="skeleton lb-skeleton-name"></div>
+                    <div class="skeleton lb-skeleton-base" style="height:48px;"></div>
+                </div>
+                <div class="lb-skeleton-podium-item">
+                    <div class="skeleton lb-skeleton-avatar" style="width:64px;height:64px;"></div>
+                    <div class="skeleton lb-skeleton-name"></div>
+                    <div class="skeleton lb-skeleton-base" style="height:64px;"></div>
+                </div>
+                <div class="lb-skeleton-podium-item">
+                    <div class="skeleton lb-skeleton-avatar"></div>
+                    <div class="skeleton lb-skeleton-name"></div>
+                    <div class="skeleton lb-skeleton-base" style="height:36px;"></div>
+                </div>
             </div>
+        `;
+
+        const rowSkeleton = (n) => Array.from({ length: n }).map(() => `
+            <div class="lb-skeleton-row">
+                <div class="skeleton lb-skeleton-row-avatar"></div>
+                <div class="lb-skeleton-row-lines">
+                    <span class="skeleton"></span>
+                    <span class="skeleton"></span>
+                </div>
+                <div class="skeleton lb-skeleton-row-time"></div>
+            </div>
+        `).join('');
+
+        document.getElementById('lb-content').innerHTML = `
+            ${podiumSkeleton}
+            <div class="lb-list">${rowSkeleton(6)}</div>
         `;
     }
 
