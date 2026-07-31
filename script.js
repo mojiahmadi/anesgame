@@ -445,11 +445,11 @@ function closeAchievementsModal() {
         text += `\n\nبیا تو هم امتحان کن 👇`;
 
         const url = location.origin + location.pathname;
+        const fullText = text + '\n\n' + url; // متن و لینک تو یه بلوک واحد، وگرنه بعضی مرورگرهای موبایل موقع "Copy" فقط لینک رو کپی می‌کنن
 
         if (navigator.share) {
-            navigator.share({ title: 'پازل بیهوشی', text: text, url: url }).catch(() => {});
+            navigator.share({ title: 'پازل بیهوشی', text: fullText }).catch(() => {});
         } else {
-            const fullText = text + '\n' + url;
             navigator.clipboard.writeText(fullText).then(() => {
                 showCoinToast('📋 متن کپی شد، هرجا خواستی پیستش کن!');
             }).catch(() => {
