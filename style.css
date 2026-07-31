@@ -1071,7 +1071,7 @@ body {
     position: fixed;
     top: 24px;
     right: 18px;
-    z-index: 1100;
+    z-index: 10050; /* بالاتر از سایدبار (9999) و پرده‌ی تیره‌ش (9998)، وگرنه پشتشون گم میشه */
     background: rgba(48,84,88,.85);
     backdrop-filter: blur(16px);
     color: var(--emerald);
@@ -1339,7 +1339,7 @@ body {
     top: 90px;
     left: 50%;
     transform: translateX(-50%) translateY(-16px);
-    z-index: 2000;
+    z-index: 10050;
     display: flex;
     align-items: center;
     gap: 14px;
