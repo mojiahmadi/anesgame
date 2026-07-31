@@ -209,6 +209,220 @@ function closeAchievementsModal() {
     document.getElementById('achievements-modal').classList.add('hidden');
 }
 
+// === مودال «روند من» — نمودار زمان/خطا در طول تلاش‌های مختلف یه مرحله ===
+let progressChartInstance = null;
+let myGameHistory = null; // کش می‌شه تا هر بار مودال باز شد دوباره از سرور نگیریم
+
+async function openProgressChartModal() {
+    closeUserMenuPanel();
+    document.getElementById('progress-chart-modal').classList.remove('hidden');
+
+    const select = document.getElementById('progress-level-select');
+    if (select.options.length === 0) {
+        gameLevels.forEach(level => {
+            const opt = document.createElement('option');
+            opt.value = level.title;
+            opt.innerText = level.title;
+            select.appendChild(opt);
+        });
+    }
+
+    if (!myGameHistory) {
+        try {
+            const { data, error } = await supabaseClient.rpc('get_my_game_history', { p_phone: playerPhone });
+            if (error) throw error;
+            myGameHistory = data || [];
+        } catch (err) {
+            console.error('خطا در دریافت روند شخصی:', err);
+            myGameHistory = [];
+        }
+    }
+
+    renderProgressChart();
+}
+
+function closeProgressChartModal() {
+    document.getElementById('progress-chart-modal').classList.add('hidden');
+}
+
+// === ساخت و دانلود گواهی تکمیل دوره (کاملاً سمت کلاینت، با Canvas) ===
+function isAllLevelsCompleted() {
+    return completedLevels.length >= gameLevels.length;
+}
+
+function wrapCenteredText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    const lines = [];
+    words.forEach(word => {
+        const testLine = line + word + ' ';
+        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+            lines.push(line.trim());
+            line = word + ' ';
+        } else {
+            line = testLine;
+        }
+    });
+    lines.push(line.trim());
+    const startY = y - ((lines.length - 1) * lineHeight) / 2;
+    lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
+}
+
+async function generateCertificate() {
+    if (!isAllLevelsCompleted()) {
+        closeUserMenuPanel();
+        showCoinToast('🔒 اول باید همه‌ی مراحل رو تموم کنی');
+        return;
+    }
+
+    if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready; // مطمئن شو فونت وزیرمتن قبل از رسم روی کانواس لود شده
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 850;
+    const ctx = canvas.getContext('2d');
+    ctx.direction = 'rtl';
+    ctx.textAlign = 'center';
+
+    const bgGrad = ctx.createLinearGradient(0, 0, 1200, 850);
+    bgGrad.addColorStop(0, '#0B0F19');
+    bgGrad.addColorStop(1, '#111826');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 1200, 850);
+
+    const glow = ctx.createRadialGradient(600, 260, 50, 600, 260, 520);
+    glow.addColorStop(0, 'rgba(255,59,92,0.16)');
+    glow.addColorStop(1, 'rgba(255,59,92,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, 1200, 850);
+
+    ctx.strokeStyle = 'rgba(255,59,92,0.4)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(40, 40, 1120, 770);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(55, 55, 1090, 740);
+
+    // آیکون قلب-ضربان (همون لوگوی سایت)
+    ctx.strokeStyle = '#FF3B5C';
+    ctx.lineWidth = 8;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    const cx = 600, cy = 150, s = 3.4;
+    const pts = [[22, 12], [18, 12], [15, 21], [9, 3], [6, 12], [2, 12]];
+    pts.forEach(([x, y], i) => {
+        const px = cx + (x - 12) * s;
+        const py = cy + (y - 12) * s;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+
+    ctx.fillStyle = '#FF3B5C';
+    ctx.font = '900 34px Vazirmatn, sans-serif';
+    ctx.fillText('گواهی تکمیل دوره', 600, 250);
+
+    ctx.fillStyle = '#97A2B0';
+    ctx.font = '600 20px Vazirmatn, sans-serif';
+    ctx.fillText('این گواهی تایید می‌کند که', 600, 330);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 54px Vazirmatn, sans-serif';
+    ctx.fillText(playerName, 600, 410);
+
+    ctx.fillStyle = '#C7CDD6';
+    ctx.font = '600 22px Vazirmatn, sans-serif';
+    wrapCenteredText(ctx, 'با موفقیت تمام چالش‌های بالینی «پازل بیهوشی» را به پایان رساند', 600, 480, 900, 34);
+
+    const rankInfo = getRankInfo(playerXP);
+    ctx.fillStyle = '#FF8FA3';
+    ctx.font = '800 24px Vazirmatn, sans-serif';
+    ctx.fillText(`رتبه‌ی نهایی: ${rankInfo.title}`, 600, 570);
+
+    const dateStr = new Date().toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
+    ctx.fillStyle = '#6E7885';
+    ctx.font = '600 17px Vazirmatn, sans-serif';
+    ctx.fillText(dateStr, 600, 745);
+
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `گواهی-پازل-بیهوشی-${playerName}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 3000);
+    });
+}
+
+function renderProgressChart() {
+    const select = document.getElementById('progress-level-select');
+    const selectedLevel = select.value || (gameLevels[0] && gameLevels[0].title);
+    const attempts = (myGameHistory || []).filter(row => row.level_name === selectedLevel);
+
+    const canvas = document.getElementById('progressChart');
+    const emptyMsg = document.getElementById('progress-chart-empty');
+
+    if (attempts.length === 0) {
+        canvas.classList.add('hidden');
+        emptyMsg.classList.remove('hidden');
+        if (progressChartInstance) { progressChartInstance.destroy(); progressChartInstance = null; }
+        return;
+    }
+    canvas.classList.remove('hidden');
+    emptyMsg.classList.add('hidden');
+
+    const labels = attempts.map((_, i) => `تلاش ${i + 1}`);
+    const timeData = attempts.map(a => a.time);
+    const mistakeData = attempts.map(a => a.mistakes);
+
+    if (progressChartInstance) progressChartInstance.destroy();
+
+    progressChartInstance = new Chart(canvas.getContext('2d'), {
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'زمان (ثانیه)',
+                    data: timeData,
+                    borderColor: '#FF3B5C',
+                    backgroundColor: 'rgba(255,59,92,0.1)',
+                    yAxisID: 'y',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#FF3B5C'
+                },
+                {
+                    type: 'bar',
+                    label: 'تعداد خطا',
+                    data: mistakeData,
+                    backgroundColor: 'rgba(255, 184, 77, 0.5)',
+                    yAxisID: 'y1',
+                    borderRadius: 6,
+                    maxBarThickness: 26
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#F5F7FA', font: { family: 'Vazirmatn' } } }
+            },
+            scales: {
+                x: { ticks: { color: '#97A2B0' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { position: 'left', beginAtZero: true, ticks: { color: '#FF8FA3' }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'ثانیه', color: '#FF8FA3' } },
+                y1: { position: 'right', beginAtZero: true, ticks: { color: '#FFB84D', stepSize: 1 }, grid: { display: false }, title: { display: true, text: 'خطا', color: '#FFB84D' } }
+            }
+        }
+    });
+}
+
     const gameLevels = [
         { id: 0, timeLimit: 240, title: "آناتومی راه هوایی", desc: "مسیری که لوله تراشه در اینتوباسیون طی می‌کند.", layers: [ { id: "A1", name: "حفره دهان" }, { id: "A2", name: "اوروفارنکس (حلق)" }, { id: "A3", name: "اپی‌گلوت" }, { id: "A4", name: "تارهای صوتی (Vocal Cords)" }, { id: "A5", name: "نای (Trachea)" }, { id: "A6", name: "کارینا (محل دوشاخه شدن)" } ] },
         { id: 1, timeLimit: 240, title: "داروها و مراحل اینداکشن (RSI)", desc: "ترتیب صحیح القای بیهوشی سریع (Rapid Sequence Induction).", layers: [ { id: "I1", name: "پره‌اکسیژناسیون (اکسیژن ۱۰۰٪)" }, { id: "I2", name: "تزریق فنتانیل (مخدر ضددرد)" }, { id: "I3", name: "تزریق پروپوفول (هوشبر وریدی)" }, { id: "I4", name: "تزریق سوکسینیل‌کولین (شل‌کننده)" }, { id: "I5", name: "انجام لوله‌گذاری (اینتوباسیون)" }, { id: "I6", name: "تایید محل با کاپنوگراف (EtCO2)" } ] },
@@ -833,6 +1047,7 @@ function closeAchievementsModal() {
         clearInterval(timerInterval);
         isConfettiActive = false;
         localStorage.removeItem('anesPuzzle_lastSession');
+        myGameHistory = null;
 
         document.getElementById('main-header').classList.add('hidden');
         closeUserMenuPanel();

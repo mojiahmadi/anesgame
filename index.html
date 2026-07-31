@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="style.css">
     
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
 
@@ -480,7 +481,26 @@
         </div>
     </div>
 </div>
+
+<div id="progress-chart-modal" class="modal-overlay hidden">
+    <div class="modal-content progress-chart-modal-content">
+        <h2>روند من 📈</h2>
+        <p>زمان و خطاهات تو هر بار تلاش برای یه مرحله چطور بهتر شده.</p>
+
+        <select id="progress-level-select" class="progress-level-select" onchange="renderProgressChart()"></select>
+
+        <div class="progress-chart-wrap">
+            <canvas id="progressChart"></canvas>
+        </div>
+        <p id="progress-chart-empty" class="progress-chart-empty hidden">هنوز برای این مرحله تلاشی ثبت نشده.</p>
+
+        <div class="modal-actions" style="margin-top:16px;">
+            <button class="btn-secondary" onclick="closeProgressChartModal()">بستن</button>
+        </div>
+    </div>
 </div>
+</div>
+
 <!-- پس‌زمینه تاریک پشت سایدبار -->
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleUserMenu()"></div>
 
@@ -514,6 +534,14 @@
             </button>
         </div>
 
+        <div class="user-menu-item" style="cursor:pointer;" onclick="generateCertificate()">
+            <span>دریافت گواهی 🎓</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="user-menu-item" style="cursor:pointer;" onclick="openProgressChartModal()">
+            <span>روند من 📈</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+        </div>
         <div class="user-menu-item">
             <span>موبایل</span>
             <span id="user-menu-phone-display" class="user-menu-phone-display" onclick="toggleEditPhone()">
