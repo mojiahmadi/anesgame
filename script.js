@@ -433,6 +433,31 @@ function closeAchievementsModal() {
         setTimeout(() => toast.classList.remove('show'), 3200);
     }
 
+    function shareProgress() {
+        const rankInfo = getRankInfo(playerXP);
+        const streakInfo = loadStreakInfo();
+        const streak = streakInfo.streak || 0;
+
+        let text = `🏆 من الان «${rankInfo.title}» (رتبه ${rankInfo.rank}) توی پازل بیهوشی‌ام!`;
+        if (streak > 0) {
+            text += `\n🔥 ${streak} روز پشت‌سرهم تمرین کردم.`;
+        }
+        text += `\n\nبیا تو هم امتحان کن 👇`;
+
+        const url = location.origin + location.pathname;
+
+        if (navigator.share) {
+            navigator.share({ title: 'پازل بیهوشی', text: text, url: url }).catch(() => {});
+        } else {
+            const fullText = text + '\n' + url;
+            navigator.clipboard.writeText(fullText).then(() => {
+                showCoinToast('📋 متن کپی شد، هرجا خواستی پیستش کن!');
+            }).catch(() => {
+                showCoinToast('❌ مشکلی در کپی پیش اومد');
+            });
+        }
+    }
+
     function updateCoinDisplay() {
         const badge = document.getElementById('coin-badge');
         const countEl = document.getElementById('coin-count');
@@ -805,7 +830,9 @@ function closeAchievementsModal() {
     function logout() {
         clearInterval(timerInterval);
         isConfettiActive = false;
+        localStorage.removeItem('anesPuzzle_lastSession');
 
+        document.getElementById('main-header').classList.add('hidden');
         closeUserMenuPanel();
         document.getElementById('user-menu').classList.add('hidden');
         document.getElementById('coin-badge').classList.add('hidden');
@@ -901,21 +928,50 @@ function goToLogin() {
         }
         errorEl.classList.add('hidden');
 
-        playerName = nameInput.trim() ? nameInput : "دانشجوی عزیز";
+        const name = nameInput.trim() ? nameInput : "دانشجوی عزیز";
+        enterApp(name, phoneInput);
+    }
 
+    // منطق مشترک ورود به اپ؛ هم از فرم لاگین صدا زده میشه، هم از بازیابی خودکار نشست
+    function enterApp(name, phone) {
+        playerName = name;
+
+        document.getElementById('lobby-screen').classList.add('hidden');
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('menu-screen').classList.remove('hidden');
         document.getElementById('main-header').classList.remove('hidden');
 
         loadOrInitCoins(playerName);
         loadOrInitXP(playerName);
-        loadOrInitProfile(playerName, phoneInput);
+        loadOrInitProfile(playerName, phone);
         loadCompletedLevels(playerName);
         loadAchievements(playerName);
         updateUserMenu();
         renderAvatarUI();
         document.getElementById('daily-reward-btn').classList.remove('hidden');
         refreshDailyRewardUI();
+
+        saveLastSession();
+    }
+
+    // ذخیره‌ی آخرین نشست تا با رفرش صفحه، برگشت از لیدربورد، یا باز کردن دوباره‌ی مرورگر، کاربر لاگ‌اوت نشه
+    function saveLastSession() {
+        try {
+            localStorage.setItem('anesPuzzle_lastSession', JSON.stringify({ name: playerName, phone: playerPhone || '' }));
+        } catch (e) { /* اگه localStorage در دسترس نبود، مشکلی نیست، فقط نشست ذخیره نمیشه */ }
+    }
+
+    function tryRestoreSession() {
+        try {
+            const raw = localStorage.getItem('anesPuzzle_lastSession');
+            if (!raw) return false;
+            const session = JSON.parse(raw);
+            if (!session || !session.name) return false;
+            enterApp(session.name, session.phone || '');
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
     function formatTime(s) {
@@ -1583,3 +1639,6 @@ setTimeout(() => {
     console.log("%cاخطار امنیتی!", "color: red; font-size: 40px; font-weight: bold; text-shadow: 2px 2px 0 #000;");
     console.log("%cبه دنبال چه میگردی؟", "color: #30D993; font-size: 16px; font-weight: bold;");
 }, 2000);
+
+// اگه کاربر قبلاً وارد شده بود (رفرش صفحه، برگشت از لیدربورد، یا باز کردن دوباره‌ی مرورگر)، مستقیم برش‌گردون تو بازی
+tryRestoreSession();

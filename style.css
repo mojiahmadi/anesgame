@@ -1312,6 +1312,27 @@ body {
     direction: ltr;
 }
 
+.rank-share-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: rgba(255, 59, 92, 0.08);
+    border: 1px solid rgba(255, 59, 92, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--vivid-red);
+    font-size: 12px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+.rank-share-btn:hover { background: rgba(255, 59, 92, 0.15); transform: translateY(-1px); }
+.rank-share-btn:active { transform: translateY(0) scale(0.98); }
+
 /* --- Toast جشن ترفیع رتبه --- */
 .rank-up-toast {
     position: fixed;
