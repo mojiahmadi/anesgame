@@ -447,7 +447,9 @@ function closeAchievementsModal() {
         const url = location.origin + location.pathname;
         const fullText = text + '\n\n' + url; // متن و لینک تو یه بلوک واحد، وگرنه بعضی مرورگرهای موبایل موقع "Copy" فقط لینک رو کپی می‌کنن
 
-        if (navigator.share) {
+        const isMobileInput = window.matchMedia('(max-width: 860px)').matches;
+
+        if (navigator.share && isMobileInput) {
             navigator.share({ title: 'پازل بیهوشی', text: fullText }).catch(() => {});
         } else {
             navigator.clipboard.writeText(fullText).then(() => {
