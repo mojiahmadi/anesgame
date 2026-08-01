@@ -472,6 +472,16 @@ function renderProgressChart() {
         { id: 'p8', bg: 'linear-gradient(135deg,#DB2777,#F472B6)', icon: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>' }
     ];
 
+    // آواتارهای پرمیوم فروشگاه — با سکه خریداری میشن
+    const shopAvatars = [
+        { id: 's1', price: 40, bg: 'linear-gradient(135deg,#B45309,#FCD34D)', icon: '<path d="M12 2l2.4 4.8L20 8l-4 3.9.9 5.6L12 15l-4.9 2.5.9-5.6L4 8l5.6-1.2L12 2z"/>' },
+        { id: 's2', price: 50, bg: 'linear-gradient(135deg,#334155,#94A3B8)', icon: '<path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z"/>' },
+        { id: 's3', price: 60, bg: 'linear-gradient(135deg,#4C1D95,#A78BFA)', icon: '<path d="M9.5 2A6.5 6.5 0 0 0 3 8.5c0 4 3 6.5 6 9.5l3 3 3-3c3-3 6-5.5 6-9.5A6.5 6.5 0 0 0 14.5 2 6.5 6.5 0 0 0 12 3.5 6.5 6.5 0 0 0 9.5 2Z"/><path d="M12 8v4M12 16h.01"/>' },
+        { id: 's4', price: 75, bg: 'linear-gradient(135deg,#065F46,#34D399)', icon: '<path d="M6 3h12M6 3v6a6 6 0 0 0 12 0V3M6 21h12M6 21v-6a6 6 0 0 1 12 0v6"/>' },
+        { id: 's5', price: 90, bg: 'linear-gradient(135deg,#9F1239,#FB7185)', icon: '<path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z"/>' },
+        { id: 's6', price: 120, bg: 'linear-gradient(135deg,#0C4A6E,#38BDF8)', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18 9 9 0 0 1 0-18z" stroke-dasharray="4 3"/><circle cx="12" cy="12" r="2.5"/>' }
+    ];
+
     function coinsStorageKey(name) {
         return 'anesPuzzle_coins_' + name.trim().toLowerCase();
     }
@@ -640,8 +650,11 @@ function renderProgressChart() {
 
     function celebrateRankUp(newRank) {
         const info = getRankInfo(xpNeededForRank(newRank)); // فقط برای گرفتن عنوان رتبه جدید
+        const coinBonus = newRank * 10;
+        addCoins(coinBonus);
+
         const toast = document.getElementById('rank-up-toast');
-        document.getElementById('rank-up-toast-sub').innerText = `رتبه ${newRank}: ${info.title}`;
+        document.getElementById('rank-up-toast-sub').innerText = `رتبه ${newRank}: ${info.title} (+${coinBonus} سکه 🪙)`;
         toast.classList.add('show');
         playSfx('win');
         setTimeout(() => toast.classList.remove('show'), 3200);
@@ -826,7 +839,7 @@ function renderProgressChart() {
         if (avatar.type === 'custom') {
             return `<img src="${avatar.value}" alt="آواتار" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
         }
-        const preset = presetAvatars.find(p => p.id === avatar.value) || presetAvatars[0];
+        const preset = presetAvatars.find(p => p.id === avatar.value) || shopAvatars.find(p => p.id === avatar.value) || presetAvatars[0];
         return `<div style="width:100%;height:100%;border-radius:50%;background:${preset.bg};display:flex;align-items:center;justify-content:center;">
             <svg width="60%" height="60%" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${preset.icon}</svg>
         </div>`;
@@ -842,7 +855,11 @@ function renderProgressChart() {
     function buildAvatarGrid() {
         const grid = document.getElementById('avatar-grid');
         grid.innerHTML = '';
-        presetAvatars.forEach(preset => {
+
+        const ownedShopItems = shopAvatars.filter(item => ownedSkins.includes(item.id));
+        const allAvailable = [...presetAvatars, ...ownedShopItems];
+
+        allAvailable.forEach(preset => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'avatar-option';
@@ -865,6 +882,89 @@ function renderProgressChart() {
 
     function closeAvatarPicker() {
         document.getElementById('avatar-modal').classList.add('hidden');
+    }
+
+    // === فروشگاه آواتار (تزئینی، با سکه خریداری میشه) ===
+    let ownedSkins = [];
+
+    function ownedSkinsStorageKey(name) {
+        return 'anesPuzzle_ownedSkins_' + name.trim().toLowerCase();
+    }
+
+    function loadOwnedSkins(name) {
+        try {
+            ownedSkins = JSON.parse(localStorage.getItem(ownedSkinsStorageKey(name))) || [];
+        } catch (e) {
+            ownedSkins = [];
+        }
+    }
+
+    function saveOwnedSkins() {
+        localStorage.setItem(ownedSkinsStorageKey(playerName), JSON.stringify(ownedSkins));
+    }
+
+    function openShopModal() {
+        closeUserMenuPanel();
+        buildShopGrid();
+        document.getElementById('shop-modal').classList.remove('hidden');
+    }
+
+    function closeShopModal() {
+        document.getElementById('shop-modal').classList.add('hidden');
+    }
+
+    function buildShopGrid() {
+        const grid = document.getElementById('shop-grid');
+        grid.innerHTML = '';
+
+        shopAvatars.forEach(item => {
+            const owned = ownedSkins.includes(item.id);
+            const selected = currentAvatar.type === 'preset' && currentAvatar.value === item.id;
+
+            const card = document.createElement('div');
+            card.className = 'shop-item' + (selected ? ' selected' : '');
+
+            const coinIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-left:3px;"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-2.5-1.5c-1.5 0-2.5 1-2.5 2s1 1.5 2.5 2 2.5 1 2.5 2-1 2-2.5 2a2.5 2.5 0 0 1-2.5-1.5"/><path d="M12 6v1.5M12 16.5V18"/></svg>`;
+
+            card.innerHTML = `
+                <div class="shop-item-avatar" style="background:${item.bg}">
+                    <svg width="60%" height="60%" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
+                </div>
+                <div class="shop-item-price ${owned ? 'owned' : ''}">
+                    ${owned ? (selected ? 'انتخاب‌شده ✓' : 'استفاده') : `${item.price}${coinIconSvg}`}
+                </div>
+            `;
+            card.addEventListener('click', () => handleShopItemClick(item));
+            grid.appendChild(card);
+        });
+    }
+
+    function handleShopItemClick(item) {
+        const owned = ownedSkins.includes(item.id);
+
+        if (owned) {
+            currentAvatar = { type: 'preset', value: item.id };
+            saveProfile();
+            renderAvatarUI();
+            buildShopGrid();
+            showCoinToast('✅ آواتار انتخاب شد');
+            return;
+        }
+
+        if (playerCoins < item.price) {
+            showCoinToast(`💰 سکه کافی نیست (نیاز: ${item.price})`);
+            return;
+        }
+
+        spendCoins(item.price);
+        ownedSkins.push(item.id);
+        saveOwnedSkins();
+
+        currentAvatar = { type: 'preset', value: item.id };
+        saveProfile();
+        renderAvatarUI();
+        buildShopGrid();
+        showCoinToast(`🎉 آواتار جدید خریداری شد! (-${item.price} سکه)`);
     }
 
     function selectPresetAvatar(id) {
@@ -1160,6 +1260,7 @@ function goToLogin() {
 
         loadOrInitCoins(playerName);
         loadOrInitXP(playerName);
+        loadOwnedSkins(playerName);
         loadOrInitProfile(playerName, phone);
         loadCompletedLevels(playerName);
         loadAchievements(playerName);
