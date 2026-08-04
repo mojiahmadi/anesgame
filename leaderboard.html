@@ -14,7 +14,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ===== استایل‌های اختصاصی لیدربورد ===== */
+        
 
         .lb-page {
             min-height: 100vh;
@@ -23,7 +23,7 @@
             margin: 0 auto;
         }
 
-        /* هدر */
+        
         .lb-header {
             display: flex;
             align-items: center;
@@ -64,7 +64,7 @@
             margin: 0;
         }
 
-        /* فیلتر چالش */
+        
         .lb-filter {
             display: flex;
             gap: 8px;
@@ -94,7 +94,7 @@
 
         .lb-filter-btn:hover:not(.active) { background: var(--glass-strong); color: var(--slate-900); }
 
-        /* تب بهترین / آخرین */
+        
         .lb-tabs {
             display: flex;
             background: var(--glass);
@@ -124,7 +124,7 @@
             color: var(--slate-900);
         }
 
-        /* سه نفر اول */
+        
         .lb-podium {
             display: flex;
             align-items: flex-end;
@@ -202,7 +202,7 @@
         .lb-podium-item.second .lb-podium-base { height: 48px; background: linear-gradient(135deg, #94a3b8, #cbd5e1); }
         .lb-podium-item.third .lb-podium-base { height: 36px; background: linear-gradient(135deg, #c2763a, #d97706); }
 
-        /* جدول نفرات ۴ به بعد */
+        
         .lb-list {
             display: flex;
             flex-direction: column;
@@ -316,7 +316,7 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* --- Skeleton Loading (shimmer) --- */
+        
         @keyframes skeletonShimmer {
             0% { background-position: -300px 0; }
             100% { background-position: 300px 0; }
@@ -339,7 +339,7 @@
         .lb-skeleton-row-lines span:last-child { width: 25%; height: 11px; }
         .lb-skeleton-row-time { width: 50px; height: 13px; }
 
-        /* خطا */
+        
         .lb-error {
             text-align: center;
             padding: 48px 20px;
@@ -349,7 +349,7 @@
         .lb-error svg { margin-bottom: 12px; color: var(--vivid-red); }
         .lb-error p { font-size: 14px; margin: 0; }
 
-        /* خالی */
+        
         .lb-empty {
             text-align: center;
             padding: 48px 20px;
@@ -357,7 +357,7 @@
             font-size: 14px;
         }
 
-        /* نشانگر تازه‌سازی */
+        
         .lb-refresh-btn {
             display: flex;
             align-items: center;
@@ -378,7 +378,7 @@
         .lb-refresh-btn:hover { background: var(--glass); color: var(--slate-900); }
         .lb-refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
 
-        /* شمارنده کل */
+        
         .lb-count {
             font-size: 12px;
             color: var(--slate-500);
@@ -398,7 +398,7 @@
 
 <div class="lb-page">
 
-    <!-- هدر -->
+    
     <div class="lb-header">
         <a href="index.html" class="lb-back-btn" aria-label="بازگشت">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -420,7 +420,7 @@
         </button>
     </div>
 
-    <!-- تب بهترین / آخرین -->
+    
     <div class="lb-tabs">
         <button class="lb-tab active" id="tab-best" onclick="switchTab('best')">
             ⚡ بهترین زمان
@@ -430,7 +430,7 @@
         </button>
     </div>
 
-    <!-- فیلتر چالش -->
+    
     <div class="lb-filter" id="filter-container">
         <button class="lb-filter-btn active" data-level="all" onclick="filterByLevel('all', this)">همه چالش‌ها</button>
         <button class="lb-filter-btn" data-level="آناتومی راه هوایی" onclick="filterByLevel('آناتومی راه هوایی', this)">راه هوایی</button>
@@ -443,7 +443,7 @@
         <button class="lb-filter-btn" data-level="پروسیجر رگ‌گیری (IV Cannulation)" onclick="filterByLevel('پروسیجر رگ‌گیری (IV Cannulation)', this)">رگ‌گیری</button>
     </div>
 
-    <!-- محتوا -->
+    
     <div id="lb-content">
         <div class="lb-loading">
             <div class="lb-spinner"></div>
@@ -455,12 +455,12 @@
 
 <script>
 (function () {
-    // ===== اتصال Supabase =====
+    
     const supabaseUrl = 'https://yaguesbmmaaeerfkzdnr.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhZ3Vlc2JtbWFhZWVyZmt6ZG5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDA3MDEsImV4cCI6MjA5ODY3NjcwMX0.9WFow53Vx-4y-6rS5lfD_UwsUxchLQcWkGmGOzDlv3M';
     const db = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // === ثبت خودکار خطاهای جاوااسکریپت ===
+    
     (function setupErrorLogging() {
         const MAX_LOGS_PER_SESSION = 5;
         const loggedMessages = new Set();
@@ -494,12 +494,12 @@
         });
     })();
 
-    // ===== وضعیت =====
+    
     let currentTab = 'best';
     let currentLevel = 'all';
     let allData = [];
 
-    // ===== پاک‌سازی XSS =====
+    
     function sanitizeText(str) {
         if (!str) return '';
         const div = document.createElement('div');
@@ -507,7 +507,7 @@
         return div.innerHTML;
     }
 
-    // ===== تبدیل زمان =====
+    
     function formatTime(seconds) {
         if (!seconds && seconds !== 0) return '--:--';
         const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -515,13 +515,13 @@
         return `${m}:${s}`;
     }
 
-    // ===== حرف اول اسم برای آواتار =====
+    
     function getInitial(name) {
         if (!name) return '?';
         return sanitizeText(name.trim().charAt(0));
     }
 
-    // ===== بارگذاری داده از Supabase =====
+    
     window.loadData = async function () {
         const refreshBtn = document.getElementById('refresh-btn');
         refreshBtn.classList.add('spinning');
@@ -545,7 +545,7 @@
         }
     };
 
-    // ===== فیلتر بر اساس چالش =====
+    
     window.filterByLevel = function (level, btn) {
         currentLevel = level;
         document.querySelectorAll('.lb-filter-btn').forEach(b => b.classList.remove('active'));
@@ -553,7 +553,7 @@
         renderData();
     };
 
-    // ===== تغییر تب =====
+    
     window.switchTab = function (tab) {
         currentTab = tab;
         document.getElementById('tab-best').classList.toggle('active', tab === 'best');
@@ -561,7 +561,7 @@
         loadData();
     };
 
-    // ===== رندر داده =====
+    
     function renderData() {
         let filtered = allData;
 
@@ -569,7 +569,7 @@
             filtered = allData.filter(r => r.level_name === currentLevel);
         }
 
-        // اگر تب بهترین زمان هست، برای هر نفر فقط بهترین رکورد رو نگه دار
+        
         if (currentTab === 'best') {
             const bestMap = {};
             filtered.forEach(r => {
@@ -588,15 +588,15 @@
         const content = document.getElementById('lb-content');
         let html = '';
 
-        // شمارنده
+        
         html += `<div class="lb-count">مجموع <strong>${filtered.length}</strong> نتیجه</div>`;
 
-        // سه نفر اول (فقط وقتی فیلتر خاصی نداریم یا داده کافی هست)
+        
         if (filtered.length >= 1) {
             html += buildPodium(filtered.slice(0, 3));
         }
 
-        // بقیه نفرات
+        
         if (filtered.length > 3) {
             html += '<div class="lb-list">';
             filtered.slice(3).forEach((record, index) => {
@@ -608,7 +608,7 @@
         content.innerHTML = html;
     }
 
-    // ===== سکو سه نفر اول =====
+    
     function buildPodium(top) {
         const classes = ['first', 'second', 'third'];
         const medals = ['🥇', '🥈', '🥉'];
@@ -616,7 +616,7 @@
 
         let html = '<div class="lb-podium">';
 
-        // ترتیب نمایش: دوم، اول، سوم
+        
         const order = top.length === 1 ? [0] : top.length === 2 ? [1, 0] : [1, 0, 2];
 
         order.forEach(i => {
@@ -639,7 +639,7 @@
         return html;
     }
 
-    // ===== ردیف جدول =====
+    
     function buildRow(record, rank) {
         const mistakesText = record.mistakes === 0
             ? '<span style="color:#22c55e">بدون اشتباه</span>'
@@ -661,7 +661,7 @@
         `;
     }
 
-    // ===== حالت‌های مختلف =====
+    
     function showLoading() {
         const podiumSkeleton = `
             <div class="lb-skeleton-podium">
@@ -723,7 +723,7 @@
         `;
     }
 
-    // ===== شروع =====
+    
     loadData();
 })();
 </script>

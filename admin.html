@@ -39,7 +39,7 @@
 
         .hidden { display: none !important; }
 
-        /* پس‌زمینه سیال */
+        
         .global-mesh-bg { position: fixed; inset: -50px; overflow: hidden; z-index: -1; pointer-events: none; }
         .mesh-orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.3; animation: floatOrb 12s infinite ease-in-out alternate; }
         .orb-1 { width: 300px; height: 300px; background: var(--vivid-red); top: 0; left: 10%; }
@@ -47,7 +47,7 @@
         .orb-3 { width: 350px; height: 350px; background: var(--emerald); top: 30%; left: 40%; animation-delay: -8s; opacity: 0.2; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, 30px) scale(1.15); } }
 
-        /* --- صفحه ورود ادمین --- */
+        
         #admin-login-screen {
             display: flex;
             justify-content: center;
@@ -174,7 +174,7 @@
         .stat-info h3 { font-size: 14px; color: var(--slate-400); font-weight: 600; }
         .stat-info p { font-size: 28px; font-weight: 900; color: white; margin-top: 4px; }
 
-        /* --- بخش نمودارهای آماری --- */
+        
         .charts-grid {
             display: grid;
             grid-template-columns: 1.4fr 1fr;
@@ -193,7 +193,7 @@
         .chart-card .chart-wrap { position: relative; height: 240px; }
         .chart-empty-msg { text-align: center; color: var(--slate-400); font-size: 13px; padding: 90px 0; }
 
-        /* بخش نوار جستجو */
+        
         .search-container {
             margin-bottom: 20px;
             position: relative;
@@ -220,7 +220,7 @@
             color: var(--slate-400);
         }
 
-        /* جدول داده‌ها */
+        
         .table-container {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(40px);
             border: 1px solid var(--glass-border); border-radius: 24px; padding: 20px;
@@ -399,8 +399,7 @@
     </div>
 
     <script>
-        // === بخش امنیت و ورود ===
-       // === بخش امنیت ابری (Supabase Auth) ===
+       
         
         async function loginAdmin() {
             const email = document.getElementById('admin-email').value.trim();
@@ -467,7 +466,7 @@
             location.reload(); 
         }
 
-        // === بخش خطاهای اخیر کلاینت ===
+        
         async function fetchErrorLogs() {
             const tbody = document.getElementById('error-log-body');
             try {
@@ -521,7 +520,7 @@
             });
         }
 
-        // === بخش دریافت داده‌ها از Supabase ===
+        
         const { createClient } = supabase;
         const supabaseUrl = 'https://yaguesbmmaaeerfkzdnr.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhZ3Vlc2JtbWFhZWVyZmt6ZG5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDA3MDEsImV4cCI6MjA5ODY3NjcwMX0.9WFow53Vx-4y-6rS5lfD_UwsUxchLQcWkGmGOzDlv3M'; 
@@ -589,7 +588,7 @@
             }
         }
 
-        // === بخش نمودارها ===
+        
         let dailyChartInstance = null;
         let levelChartInstance = null;
 

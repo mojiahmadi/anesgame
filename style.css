@@ -297,7 +297,7 @@ body {
     background: rgba(0, 0, 0, 0.18); 
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 18px; 
-    font-size: 16px; /* حداقل 16px تا سافاری آیفون موقع فوکوس زوم خودکار نکنه */
+    font-size: 16px; 
     color: white;
     outline: none;
     margin-bottom: 16px;
@@ -742,9 +742,9 @@ body {
 
 .layer-item:active { cursor: grabbing; transform: scale(.98); }
 
-/* --- حالت لمس-برای-جایگذاری (موبایل) --- */
+
 .layer-item.tap-mode {
-    touch-action: manipulation; /* برخلاف حالت درگ، اسکرول عادی صفحه بسته نشه */
+    touch-action: manipulation; 
     cursor: pointer;
 }
 
@@ -1071,7 +1071,7 @@ body {
     position: fixed;
     top: 24px;
     right: 18px;
-    z-index: 10050; /* بالاتر از سایدبار (9999) و پرده‌ی تیره‌ش (9998)، وگرنه پشتشون گم میشه */
+    z-index: 10050; 
     background: rgba(48,84,88,.85);
     backdrop-filter: blur(16px);
     color: var(--emerald);
@@ -1227,6 +1227,133 @@ body {
     margin-bottom: 8px;
 }
 
+
+.user-menu-header-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 6px 4px 14px;
+}
+
+.user-menu-avatar-lg {
+    width: 72px !important;
+    height: 72px !important;
+    font-size: 26px;
+    box-shadow: 0 0 0 4px rgba(255, 59, 92, 0.35), 0 8px 20px rgba(0, 0, 0, 0.35);
+    margin-bottom: 10px;
+}
+
+.user-menu-header-centered .user-menu-avatar-btn {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 10px;
+}
+.user-menu-header-centered .user-menu-avatar-lg {
+    margin-bottom: 0; 
+}
+
+.user-menu-header-centered .user-menu-name {
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.user-menu-rank-pill-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.user-menu-rank-pill {
+    background: rgba(255, 59, 92, 0.12);
+    color: var(--vivid-red);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.rank-share-icon-btn {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--slate-200);
+    border-radius: 50%;
+    color: var(--slate-400);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.rank-share-icon-btn:hover { background: rgba(255, 59, 92, 0.12); color: var(--vivid-red); }
+
+.user-menu-header-centered { position: relative; }
+.rank-share-icon-corner {
+    position: absolute;
+    top: 0px;
+    left: -8px;
+}
+
+.rank-share-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px auto 0;
+    background: none;
+    border: none;
+    color: var(--slate-400);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+.rank-share-link:hover { color: var(--vivid-red); }
+
+.rank-progress-label-centered {
+    text-align: center !important;
+    direction: ltr !important;
+    margin-top: 6px;
+    margin-bottom: 16px;
+}
+
+.user-menu-icon-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.user-menu-icon-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--slate-200);
+    border-radius: 14px;
+    color: var(--slate-700);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+.user-menu-icon-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 59, 92, 0.3);
+    background: rgba(255, 59, 92, 0.06);
+}
+.user-menu-icon-card-emoji { font-size: 22px; }
+
 .user-menu-avatar {
     width: 40px;
     height: 40px;
@@ -1264,7 +1391,7 @@ body {
 
 .user-menu-item .coin-inline svg { width: 16px; height: 16px; }
 
-/* --- بخش رتبه (XP) در سایدبار --- */
+
 .user-menu-rank-box {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--slate-200);
@@ -1470,12 +1597,12 @@ body {
     background: rgba(255,255,255,.05);
     border: 2px solid var(--slate-200);
     border-radius: var(--radius-sm);
-    font-size: 16px; /* حداقل 16px تا سافاری آیفون موقع فوکوس زوم خودکار نکنه */
+    font-size: 16px; 
     outline: none;
     color: var(--slate-900);
     direction: ltr;
     text-align: center;
-    min-width: 0; /* اجازه بده داخل فلکس‌باکس باریک سایدبار جمع بشه */
+    min-width: 0; 
 }
 
 .user-menu-phone-input:focus { border-color: var(--vivid-red); }
@@ -1491,7 +1618,7 @@ body {
     cursor: pointer;
 }
 
-/* مودال انتخاب آواتار */
+
 .avatar-modal-content { max-width: 420px; }
 
 .avatar-grid {
@@ -1606,7 +1733,7 @@ body {
     z-index: 999;
 }
 
-/* ======= صفحه تنظیمات ======= */
+
 .settings-modal-content { max-width: 400px; text-align: right; }
 .settings-modal-content h2,
 .settings-modal-content > p { text-align: center; }
@@ -1749,15 +1876,56 @@ body {
 .shop-item:hover { transform: translateY(-2px); border-color: rgba(255, 59, 92, 0.3); }
 .shop-item.selected { border-color: var(--vivid-red); background: rgba(255, 59, 92, 0.08); }
 
-.shop-item-avatar {
+.shop-item-avatar-wrap {
     width: 56px;
     height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-item-avatar-preview {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
+
+.shop-item-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate-700);
+    text-align: center;
+}
+
+/* --- قاب‌های متحرک --- */
+@keyframes framePulseF1 {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,92,.7); }
+    50%      { box-shadow: 0 0 0 5px rgba(255,59,92,0); }
+}
+.avatar-frame-f1 { animation: framePulseF1 1.5s ease-out infinite; }
+
+@keyframes framePulseF2 {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(250,199,117,.8); }
+    50%      { box-shadow: 0 0 0 6px rgba(250,199,117,0); }
+}
+.avatar-frame-f2 { animation: framePulseF2 2.1s ease-out infinite; }
+
+@keyframes framePulseF3 {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,.8); }
+    50%      { box-shadow: 0 0 0 5px rgba(56,189,248,0); }
+}
+.avatar-frame-f3 { animation: framePulseF3 1.1s ease-in-out infinite; }
+
+@keyframes framePulseF4 {
+    0%, 49%  { box-shadow: 0 0 0 4px rgba(255,59,92,.55); }
+    50%, 100% { box-shadow: 0 0 0 4px rgba(48,217,147,.55); }
+}
+.avatar-frame-f4 { animation: framePulseF4 1s steps(1) infinite; }
 
 .shop-item-price {
     font-size: 12px;
@@ -1997,7 +2165,7 @@ body {
     50%      { transform: translate(-50%, -8px); }
 }
 
-/* استایل محتوای لابی */
+
 .lobby-logo {
     margin: 0 auto 16px;
     background: rgba(255, 255, 255, 0.05);
@@ -2134,17 +2302,15 @@ body {
 }
 
 
-/* ========================================= */
-/* --- پنل کاربری جانبی (Sidebar) و بک‌گراند --- */
-/* ========================================= */
+
 
 .user-menu-dropdown {
     position: fixed !important;
     top: 0 !important;
-    left: 0 !important; /* چسبیدن دقیق به لبه سمت چپ کل صفحه */
-    width: min(320px, 88vw); /* روی گوشی‌های خیلی کوچیک کل صفحه رو نگیره */
-    height: 100dvh; /* ارتفاع پویا؛ روی موبایل زیر نوار آدرس قایم نمی‌مونه */
-    background: rgba(10, 14, 23, 0.85); /* شیشه‌ای و تاریک */
+    left: 0 !important; 
+    width: min(320px, 88vw); 
+    height: 100dvh; 
+    background: rgba(10, 14, 23, 0.85); 
     backdrop-filter: blur(32px) saturate(180%);
     -webkit-backdrop-filter: blur(32px) saturate(180%);
     border-right: 1px solid rgba(255, 255, 255, 0.08);
@@ -2152,23 +2318,23 @@ body {
     display: flex;
     flex-direction: column;
     padding: calc(80px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
-    overflow-y: auto; /* اگه ارتفاع صفحه کم بود، خودش اسکرول بخوره نه اینکه لب‌ریز بشه */
-    z-index: 9999 !important; /* بالاتر از همه چیز قرار بگیرد */
+    overflow-y: auto; 
+    z-index: 9999 !important; 
     
-    /* تنظیمات انیمیشن باز و بسته شدن از چپ - با کمی حس فنری (spring) */
+    
     transform: translateX(-100%) scale(0.96) !important; 
     opacity: 0;
     transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) !important,
                 opacity 0.35s ease !important;
 }
 
-/* این کلاس توسط جاوااسکریپت اضافه می‌شود تا سایدبار وارد صفحه شود */
+
 .user-menu-dropdown.active {
     transform: translateX(0) scale(1) !important; 
     opacity: 1;
 }
 
-/* --- استاگر (ورود پلکانی) آیتم‌های داخل سایدبار --- */
+
 .user-menu-dropdown > * {
     opacity: 0;
     transform: translateY(14px);
@@ -2189,7 +2355,7 @@ body {
 .user-menu-dropdown.active > *:nth-child(6) { transition-delay: 0.33s; }
 .user-menu-dropdown.active > *:nth-child(7) { transition-delay: 0.38s; }
 
-/* --- استایل پس‌زمینه مات پشت سایدبار --- */
+
 .sidebar-overlay {
     position: fixed;
     top: 0;
@@ -2198,7 +2364,7 @@ body {
     height: 100vh;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
-    z-index: 9998; /* دقیقاً یک لایه زیر سایدبار */
+    z-index: 9998; 
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.4s ease, visibility 0.4s ease, backdrop-filter 0.4s ease;

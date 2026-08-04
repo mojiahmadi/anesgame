@@ -1,12 +1,12 @@
-// اتصال به دیتابیس Supabase
+
     const { createClient } = supabase;
     const supabaseUrl = 'https://yaguesbmmaaeerfkzdnr.supabase.co'; 
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhZ3Vlc2JtbWFhZWVyZmt6ZG5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDA3MDEsImV4cCI6MjA5ODY3NjcwMX0.9WFow53Vx-4y-6rS5lfD_UwsUxchLQcWkGmGOzDlv3M'; 
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-    // === ثبت خودکار خطاهای جاوااسکریپت (برای عیب‌یابی سریع‌تر مشکلات کاربرا) ===
+    
     (function setupErrorLogging() {
-        const MAX_LOGS_PER_SESSION = 5; // جلوی اسپم‌شدن دیتابیس رو بگیر (مثلاً خطا داخل یه حلقه/تایمر)
+        const MAX_LOGS_PER_SESSION = 5; 
         const loggedMessages = new Set();
         let logCount = 0;
 
@@ -28,7 +28,7 @@
                 player_name: (typeof playerName !== 'undefined' && playerName) ? playerName : null,
                 user_agent: navigator.userAgent,
                 screen_size: `${window.innerWidth}x${window.innerHeight}`
-            }]).then(() => {}).catch(() => {}); // عمداً بی‌صدا؛ نباید خودش باعث خطای جدید بشه
+            }]).then(() => {}).catch(() => {}); 
         }
 
         window.addEventListener('error', function (e) {
@@ -50,7 +50,7 @@
         });
     })();
 
-    // تابع ارسال اطلاعات به سرور ابری
+    
     async function saveRecordToCloud(levelTitle, timeElapsed, mistakeCount, scoreCount) {
         try {
             const { data, error } = await supabaseClient
@@ -75,7 +75,7 @@
         }
     }
 
-    // تنظیمات مربوط به صداها
+    
     const sfx = {
         correct: new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'),
         wrong: new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3'),
@@ -94,7 +94,7 @@
         a.play().catch(() => {});
     }
 
-    // تعریف لیست مدال‌ها (Achievements)
+    
 const achievementsList = [
     { id: 'first_step', title: 'اولین قدم', desc: 'اولین مرحله را با موفقیت تمام کن.', icon: '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>' },
     { id: 'flawless', title: 'بی‌نقص', desc: 'یک مرحله را بدون هیچ خطایی (۳ ستاره) تمام کن.', icon: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' },
@@ -178,7 +178,7 @@ function processAchievementQueue() {
     }, 3500);
 }
 
-// ساخت و نمایش رابط کاربری مدال‌ها
+
 function openAchievementsModal() {
     closeUserMenuPanel();
     const grid = document.getElementById('achievements-grid');
@@ -209,9 +209,9 @@ function closeAchievementsModal() {
     document.getElementById('achievements-modal').classList.add('hidden');
 }
 
-// === مودال «روند من» — نمودار زمان/خطا در طول تلاش‌های مختلف یه مرحله ===
+
 let progressChartInstance = null;
-let myGameHistory = null; // کش می‌شه تا هر بار مودال باز شد دوباره از سرور نگیریم
+let myGameHistory = null; 
 
 async function openProgressChartModal() {
     closeUserMenuPanel();
@@ -245,7 +245,7 @@ function closeProgressChartModal() {
     document.getElementById('progress-chart-modal').classList.add('hidden');
 }
 
-// === ساخت و دانلود گواهی تکمیل دوره (کاملاً سمت کلاینت، با Canvas) ===
+
 function isAllLevelsCompleted() {
     return completedLevels.length >= gameLevels.length;
 }
@@ -276,7 +276,7 @@ async function generateCertificate() {
     }
 
     if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready; // مطمئن شو فونت وزیرمتن قبل از رسم روی کانواس لود شده
+        await document.fonts.ready; 
     }
 
     const canvas = document.createElement('canvas');
@@ -453,13 +453,14 @@ function renderProgressChart() {
     let playerStudentId = "";
     let playerEmail = "";
     let currentAvatar = { type: 'preset', value: 'p1' };
+    let currentFrame = null;
     const STARTING_COINS = 50;
     const COINS_PER_STAR = 10;
     const HINT_COST = 15;
     const DAILY_REWARD_BASE = 10;
     const DAILY_REWARD_STEP = 5;
     const DAILY_REWARD_CYCLE = 7;
-    const MAX_AVATAR_UPLOAD_BYTES = 1024 * 1024; // ۱ مگابایت
+    const MAX_AVATAR_UPLOAD_BYTES = 1024 * 1024; 
 
     const presetAvatars = [
         { id: 'p1', bg: 'linear-gradient(135deg,#7B0D1E,#C8102E)', icon: '<path d="M12 2v10"/><path d="M12 12c-2 2-3 5-3 8"/><path d="M12 12c2 2 3 5 3 8"/><path d="M9 20a3 3 0 0 1-3-3c0-3 1.5-5 3-5"/><path d="M15 20a3 3 0 0 0 3-3c0-3-1.5-5-3-5"/>' },
@@ -472,21 +473,19 @@ function renderProgressChart() {
         { id: 'p8', bg: 'linear-gradient(135deg,#DB2777,#F472B6)', icon: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>' }
     ];
 
-    // آواتارهای پرمیوم فروشگاه — با سکه خریداری میشن
-    const shopAvatars = [
-        { id: 's1', price: 40, bg: 'linear-gradient(135deg,#B45309,#FCD34D)', icon: '<path d="M12 2l2.4 4.8L20 8l-4 3.9.9 5.6L12 15l-4.9 2.5.9-5.6L4 8l5.6-1.2L12 2z"/>' },
-        { id: 's2', price: 50, bg: 'linear-gradient(135deg,#334155,#94A3B8)', icon: '<path d="M12 2 3 6v6c0 5 4 8.5 9 10 5-1.5 9-5 9-10V6l-9-4z"/>' },
-        { id: 's3', price: 60, bg: 'linear-gradient(135deg,#4C1D95,#A78BFA)', icon: '<path d="M9.5 2A6.5 6.5 0 0 0 3 8.5c0 4 3 6.5 6 9.5l3 3 3-3c3-3 6-5.5 6-9.5A6.5 6.5 0 0 0 14.5 2 6.5 6.5 0 0 0 12 3.5 6.5 6.5 0 0 0 9.5 2Z"/><path d="M12 8v4M12 16h.01"/>' },
-        { id: 's4', price: 75, bg: 'linear-gradient(135deg,#065F46,#34D399)', icon: '<path d="M6 3h12M6 3v6a6 6 0 0 0 12 0V3M6 21h12M6 21v-6a6 6 0 0 1 12 0v6"/>' },
-        { id: 's5', price: 90, bg: 'linear-gradient(135deg,#9F1239,#FB7185)', icon: '<path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z"/>' },
-        { id: 's6', price: 120, bg: 'linear-gradient(135deg,#0C4A6E,#38BDF8)', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18 9 9 0 0 1 0-18z" stroke-dasharray="4 3"/><circle cx="12" cy="12" r="2.5"/>' }
+    
+    const shopFrames = [
+        { id: 'f1', name: 'نبض قرمز', price: 40, cls: 'avatar-frame-f1' },
+        { id: 'f2', name: 'هاله طلایی', price: 55, cls: 'avatar-frame-f2' },
+        { id: 'f3', name: 'نئون آبی', price: 50, cls: 'avatar-frame-f3' },
+        { id: 'f4', name: 'مانیتور بیمار', price: 75, cls: 'avatar-frame-f4' }
     ];
 
     function coinsStorageKey(name) {
         return 'anesPuzzle_coins_' + name.trim().toLowerCase();
     }
 
-    // ======= قفل و پیشرفت مراحل =======
+    
     function progressStorageKey(name) {
         return 'anesPuzzle_completed_' + name.trim().toLowerCase();
     }
@@ -520,7 +519,7 @@ function renderProgressChart() {
         });
     }
 
-    // === سیستم امنیت و امضای دیجیتال سکه‌ها ===
+    
     const SECRET_SALT = "AnesPuzzle_M0jtaba_2026_SecureKey!@#"; // کلید مخفی که هکر نمی‌داند
 
     
@@ -536,7 +535,7 @@ function renderProgressChart() {
         return 'anesPuzzle_coins_hash_' + name.trim().toLowerCase();
     }
 
-    // ذخیره امن سکه‌ها با امضا
+    
     function saveSecureCoins(amount) {
         playerCoins = amount;
         localStorage.setItem(coinsStorageKey(playerName), amount);
@@ -583,7 +582,7 @@ function renderProgressChart() {
         return true;
     }
 
-    // === سیستم رتبه و XP (امتیاز تجربه‌ی کلی، برخلاف سکه هیچ‌وقت خرج/کم نمیشه) ===
+    
     let playerXP = 0;
 
     const RANK_TITLES = [
@@ -595,7 +594,7 @@ function renderProgressChart() {
         return 'anesPuzzle_xp_' + name.trim().toLowerCase();
     }
 
-    // مجموع XP لازم برای رسیدن به یه رتبه‌ی مشخص (منحنی مثلثی: هرچی بالاتر بری، فاصله‌ی بعدی بیشتره)
+    
     function xpNeededForRank(rank) {
         return 100 * rank * (rank - 1) / 2;
     }
@@ -635,14 +634,12 @@ function renderProgressChart() {
 
     function updateXPDisplay() {
         const info = getRankInfo(playerXP);
-        const nameEl = document.getElementById('user-menu-rank-name');
-        const badgeEl = document.getElementById('user-menu-rank-badge');
+        const pillEl = document.getElementById('user-menu-rank-pill');
         const fillEl = document.getElementById('rank-progress-fill');
         const labelEl = document.getElementById('rank-progress-label');
-        if (!nameEl) return;
+        if (!pillEl) return;
 
-        nameEl.innerText = info.title;
-        badgeEl.innerText = `رتبه ${info.rank}`;
+        pillEl.innerText = `${info.title} · رتبه ${info.rank}`;
         const pct = info.xpForNextRank > 0 ? Math.min(100, (info.xpIntoRank / info.xpForNextRank) * 100) : 100;
         fillEl.style.width = pct + '%';
         labelEl.innerText = `${info.xpIntoRank} / ${info.xpForNextRank} XP`;
@@ -703,7 +700,7 @@ function renderProgressChart() {
         if (userMenuCoins) userMenuCoins.innerText = playerCoins;
     }
 
-    // ======= پروفایل کاربر (موبایل + مشخصات + آواتار) =======
+    
     function profileStorageKey(name) {
         return 'anesPuzzle_profile_' + name.trim().toLowerCase();
     }
@@ -721,13 +718,16 @@ function renderProgressChart() {
                     type: data.avatarType || 'preset',
                     value: data.avatarValue || 'p1'
                 };
+                currentFrame = data.frameId || null;
             } catch (e) {
                 playerPhone = phoneFromLogin || '';
                 currentAvatar = { type: 'preset', value: 'p1' };
+                currentFrame = null;
             }
         } else {
             playerPhone = phoneFromLogin || '';
             currentAvatar = { type: 'preset', value: 'p1' };
+            currentFrame = null;
         }
         saveProfile();
     }
@@ -740,34 +740,14 @@ function renderProgressChart() {
             studentId: playerStudentId,
             email: playerEmail,
             avatarType: currentAvatar.type,
-            avatarValue: currentAvatar.value
+            avatarValue: currentAvatar.value,
+            frameId: currentFrame
         }));
-    }
-
-    function toggleEditPhone() {
-        const editEl = document.getElementById('user-menu-phone-edit');
-        const input = document.getElementById('user-menu-phone-input');
-        input.value = playerPhone;
-        editEl.classList.toggle('hidden');
-        if (!editEl.classList.contains('hidden')) input.focus();
-    }
-
-    function savePhone() {
-        const input = document.getElementById('user-menu-phone-input');
-        const val = input.value.trim();
-        if (!/^09\d{9}$/.test(val)) {
-            showCoinToast('⚠️ شماره موبایل معتبر نیست');
-            return;
-        }
-        playerPhone = val;
-        saveProfile();
-        document.getElementById('user-menu-phone-text').innerText = playerPhone;
-        document.getElementById('user-menu-phone-edit').classList.add('hidden');
-        showCoinToast('✅ شماره موبایل ذخیره شد');
     }
 
     function openProfileModal() {
         closeUserMenuPanel();
+        document.getElementById('profile-phone').value = playerPhone || '';
         document.getElementById('profile-student-id').value = playerStudentId;
         document.getElementById('profile-email').value = playerEmail;
         document.getElementById('profile-modal').classList.remove('hidden');
@@ -778,15 +758,23 @@ function renderProgressChart() {
     }
 
     function saveExtraProfile() {
+        const newPhone = document.getElementById('profile-phone').value.trim();
+        if (!/^09\d{9}$/.test(newPhone)) {
+            showCoinToast('⚠️ شماره موبایل معتبر نیست');
+            return;
+        }
+        playerPhone = newPhone;
+
         playerStudentId = document.getElementById('profile-student-id').value.trim();
         playerEmail = document.getElementById('profile-email').value.trim();
         
         saveProfile(); 
+        updateUserMenu();
         showCoinToast('✅ مشخصات شما با موفقیت ذخیره شد');
         closeProfileModal();
     }
 
-    // ======= تنظیمات =======
+    
     function openSettingsModal() {
         closeUserMenuPanel();
         refreshSoundToggleUI();
@@ -834,32 +822,39 @@ function renderProgressChart() {
         closeSettingsModal();
     }
 
-    // ======= آواتار =======
+    
     function avatarInnerHTML(avatar) {
         if (avatar.type === 'custom') {
             return `<img src="${avatar.value}" alt="آواتار" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
         }
-        const preset = presetAvatars.find(p => p.id === avatar.value) || shopAvatars.find(p => p.id === avatar.value) || presetAvatars[0];
+        const preset = presetAvatars.find(p => p.id === avatar.value) || presetAvatars[0];
         return `<div style="width:100%;height:100%;border-radius:50%;background:${preset.bg};display:flex;align-items:center;justify-content:center;">
             <svg width="60%" height="60%" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${preset.icon}</svg>
         </div>`;
     }
 
+    const ALL_FRAME_CLASSES = ['avatar-frame-f1', 'avatar-frame-f2', 'avatar-frame-f3', 'avatar-frame-f4'];
+
+    function applyFrameClass(el) {
+        if (!el) return;
+        el.classList.remove(...ALL_FRAME_CLASSES);
+        if (currentFrame) {
+            const frame = shopFrames.find(f => f.id === currentFrame);
+            if (frame) el.classList.add(frame.cls);
+        }
+    }
+
     function renderAvatarUI() {
         const menuAvatarEl = document.getElementById('user-menu-avatar');
         const btnAvatarEl = document.getElementById('user-menu-btn-avatar');
-        if (menuAvatarEl) menuAvatarEl.innerHTML = avatarInnerHTML(currentAvatar);
-        if (btnAvatarEl) btnAvatarEl.innerHTML = avatarInnerHTML(currentAvatar);
+        if (menuAvatarEl) { menuAvatarEl.innerHTML = avatarInnerHTML(currentAvatar); applyFrameClass(menuAvatarEl); }
+        if (btnAvatarEl) { btnAvatarEl.innerHTML = avatarInnerHTML(currentAvatar); applyFrameClass(btnAvatarEl); }
     }
 
     function buildAvatarGrid() {
         const grid = document.getElementById('avatar-grid');
         grid.innerHTML = '';
-
-        const ownedShopItems = shopAvatars.filter(item => ownedSkins.includes(item.id));
-        const allAvailable = [...presetAvatars, ...ownedShopItems];
-
-        allAvailable.forEach(preset => {
+        presetAvatars.forEach(preset => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'avatar-option';
@@ -884,23 +879,23 @@ function renderProgressChart() {
         document.getElementById('avatar-modal').classList.add('hidden');
     }
 
-    // === فروشگاه آواتار (تزئینی، با سکه خریداری میشه) ===
-    let ownedSkins = [];
+    
+    let ownedFrames = [];
 
-    function ownedSkinsStorageKey(name) {
-        return 'anesPuzzle_ownedSkins_' + name.trim().toLowerCase();
+    function ownedFramesStorageKey(name) {
+        return 'anesPuzzle_ownedFrames_' + name.trim().toLowerCase();
     }
 
-    function loadOwnedSkins(name) {
+    function loadOwnedFrames(name) {
         try {
-            ownedSkins = JSON.parse(localStorage.getItem(ownedSkinsStorageKey(name))) || [];
+            ownedFrames = JSON.parse(localStorage.getItem(ownedFramesStorageKey(name))) || [];
         } catch (e) {
-            ownedSkins = [];
+            ownedFrames = [];
         }
     }
 
-    function saveOwnedSkins() {
-        localStorage.setItem(ownedSkinsStorageKey(playerName), JSON.stringify(ownedSkins));
+    function saveOwnedFrames() {
+        localStorage.setItem(ownedFramesStorageKey(playerName), JSON.stringify(ownedFrames));
     }
 
     function openShopModal() {
@@ -917,54 +912,67 @@ function renderProgressChart() {
         const grid = document.getElementById('shop-grid');
         grid.innerHTML = '';
 
-        shopAvatars.forEach(item => {
-            const owned = ownedSkins.includes(item.id);
-            const selected = currentAvatar.type === 'preset' && currentAvatar.value === item.id;
+        const coinIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-left:3px;"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-2.5-1.5c-1.5 0-2.5 1-2.5 2s1 1.5 2.5 2 2.5 1 2.5 2-1 2-2.5 2a2.5 2.5 0 0 1-2.5-1.5"/><path d="M12 6v1.5M12 16.5V18"/></svg>`;
+
+        
+        const noneCard = document.createElement('div');
+        noneCard.className = 'shop-item' + (currentFrame === null ? ' selected' : '');
+        noneCard.innerHTML = `
+            <div class="shop-item-avatar-wrap"><div class="shop-item-avatar-preview">${avatarInnerHTML(currentAvatar)}</div></div>
+            <div class="shop-item-price">بدون قاب</div>
+        `;
+        noneCard.addEventListener('click', () => {
+            currentFrame = null;
+            saveProfile();
+            renderAvatarUI();
+            buildShopGrid();
+        });
+        grid.appendChild(noneCard);
+
+        shopFrames.forEach(frame => {
+            const owned = ownedFrames.includes(frame.id);
+            const selected = currentFrame === frame.id;
 
             const card = document.createElement('div');
             card.className = 'shop-item' + (selected ? ' selected' : '');
-
-            const coinIconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-left:3px;"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2.5 0 0 0-2.5-1.5c-1.5 0-2.5 1-2.5 2s1 1.5 2.5 2 2.5 1 2.5 2-1 2-2.5 2a2.5 2.5 0 0 1-2.5-1.5"/><path d="M12 6v1.5M12 16.5V18"/></svg>`;
-
             card.innerHTML = `
-                <div class="shop-item-avatar" style="background:${item.bg}">
-                    <svg width="60%" height="60%" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
-                </div>
+                <div class="shop-item-avatar-wrap"><div class="shop-item-avatar-preview ${frame.cls}">${avatarInnerHTML(currentAvatar)}</div></div>
+                <div class="shop-item-name">${frame.name}</div>
                 <div class="shop-item-price ${owned ? 'owned' : ''}">
-                    ${owned ? (selected ? 'انتخاب‌شده ✓' : 'استفاده') : `${item.price}${coinIconSvg}`}
+                    ${owned ? (selected ? 'انتخاب‌شده ✓' : 'استفاده') : `${frame.price}${coinIconSvg}`}
                 </div>
             `;
-            card.addEventListener('click', () => handleShopItemClick(item));
+            card.addEventListener('click', () => handleFrameClick(frame));
             grid.appendChild(card);
         });
     }
 
-    function handleShopItemClick(item) {
-        const owned = ownedSkins.includes(item.id);
+    function handleFrameClick(frame) {
+        const owned = ownedFrames.includes(frame.id);
 
         if (owned) {
-            currentAvatar = { type: 'preset', value: item.id };
+            currentFrame = frame.id;
             saveProfile();
             renderAvatarUI();
             buildShopGrid();
-            showCoinToast('✅ آواتار انتخاب شد');
+            showCoinToast('✅ قاب انتخاب شد');
             return;
         }
 
-        if (playerCoins < item.price) {
-            showCoinToast(`💰 سکه کافی نیست (نیاز: ${item.price})`);
+        if (playerCoins < frame.price) {
+            showCoinToast(`💰 سکه کافی نیست (نیاز: ${frame.price})`);
             return;
         }
 
-        spendCoins(item.price);
-        ownedSkins.push(item.id);
-        saveOwnedSkins();
+        spendCoins(frame.price);
+        ownedFrames.push(frame.id);
+        saveOwnedFrames();
 
-        currentAvatar = { type: 'preset', value: item.id };
+        currentFrame = frame.id;
         saveProfile();
         renderAvatarUI();
         buildShopGrid();
-        showCoinToast(`🎉 آواتار جدید خریداری شد! (-${item.price} سکه)`);
+        showCoinToast(`🎉 قاب جدید خریداری شد! (-${frame.price} سکه)`);
     }
 
     function selectPresetAvatar(id) {
@@ -1000,7 +1008,7 @@ function renderProgressChart() {
         reader.readAsDataURL(file);
     }
 
-    // ======= جایزه روزانه =======
+    
     function streakStorageKey(name) {
         return 'anesPuzzle_streak_' + name.trim().toLowerCase();
     }
@@ -1139,7 +1147,6 @@ function renderProgressChart() {
         menu.classList.remove('hidden');
 
         document.getElementById('user-menu-name').innerText = playerName;
-        document.getElementById('user-menu-phone-text').innerText = playerPhone || '-';
         document.getElementById('user-menu-coins').innerText = playerCoins;
     }
 
@@ -1158,7 +1165,6 @@ function renderProgressChart() {
         document.getElementById('avatar-modal').classList.add('hidden');
         document.getElementById('daily-reward-modal').classList.add('hidden');
         document.getElementById('settings-modal').classList.add('hidden');
-        document.getElementById('user-menu-phone-edit').classList.add('hidden');
 
         document.getElementById('game-screen').classList.add('hidden');
         document.getElementById('menu-screen').classList.add('hidden');
@@ -1226,9 +1232,9 @@ function renderProgressChart() {
     }
 
 
-// تابع انتقال از لابی به فرم لاگین
+
 function goToLogin() {
-    // مخفی کردن لابی و نمایش فرم ورود
+    
     document.getElementById('lobby-screen').classList.add('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
 }
@@ -1249,7 +1255,7 @@ function goToLogin() {
         enterApp(name, phoneInput);
     }
 
-    // منطق مشترک ورود به اپ؛ هم از فرم لاگین صدا زده میشه، هم از بازیابی خودکار نشست
+    
     function enterApp(name, phone) {
         playerName = name;
 
@@ -1260,7 +1266,7 @@ function goToLogin() {
 
         loadOrInitCoins(playerName);
         loadOrInitXP(playerName);
-        loadOwnedSkins(playerName);
+        loadOwnedFrames(playerName);
         loadOrInitProfile(playerName, phone);
         loadCompletedLevels(playerName);
         loadAchievements(playerName);
@@ -1272,7 +1278,7 @@ function goToLogin() {
         saveLastSession();
     }
 
-    // ذخیره‌ی آخرین نشست تا با رفرش صفحه، برگشت از لیدربورد، یا باز کردن دوباره‌ی مرورگر، کاربر لاگ‌اوت نشه
+    
     function saveLastSession() {
         try {
             localStorage.setItem('anesPuzzle_lastSession', JSON.stringify({ name: playerName, phone: playerPhone || '' }));
@@ -1324,7 +1330,7 @@ function goToLogin() {
         });
     }
 
-    // === آموزش تعاملی برای اولین بار (Onboarding) ===
+    
     function onboardingStorageKey() {
         return 'anesPuzzle_onboarding_seen_' + (playerName || 'guest').trim().toLowerCase();
     }
@@ -1483,7 +1489,7 @@ function goToLogin() {
         dc.innerHTML = '';
         dtc.innerHTML = '';
 
-        // روی صفحات کوچیک (موبایل) به‌جای درگ‌ودراپ، از حالت لمس-برای-جایگذاری استفاده می‌کنیم
+        
         const isMobileInput = window.matchMedia('(max-width: 860px)').matches;
         tapSelectedElement = null;
 
@@ -1538,8 +1544,7 @@ function goToLogin() {
             dtc.appendChild(zone);
         });
 
-        // اتصال یک‌باره‌ی شنونده‌های تپ روی خودِ کانتینرها (event delegation)
-        // چون innerHTML هر مرحله عوض میشه ولی خودِ کانتینر ثابت می‌مونه، فقط یک‌بار نیاز به اتصاله
+        
         if (isMobileInput) {
             if (!dc.dataset.tapBound) {
                 dc.addEventListener('click', handleLayerTapClick);
@@ -1615,12 +1620,12 @@ function goToLogin() {
         processDropResult(this, droppedId, expectedId);
     }
     
-    // === حالت لمس-برای-جایگذاری (Tap-to-Place) — جایگزین درگ‌ودراپ روی موبایل ===
+    
     function handleLayerTapClick(e) {
         const item = e.target.closest('.layer-item');
-        if (!item || item.getAttribute('draggable') === 'false') return; // این مورد قبلاً درست جاگذاری شده
+        if (!item || item.getAttribute('draggable') === 'false') return; 
 
-        // اگه دوباره روی همون آیتم انتخاب‌شده زده شد، انتخاب لغو بشه
+        
         if (tapSelectedElement === item) {
             item.classList.remove('tap-selected');
             tapSelectedElement = null;
@@ -1852,13 +1857,13 @@ function goToLogin() {
             : `+${earned} سکه`;
         markLevelCompleted(currentLevelIndex);
 
-        // --- بخش XP و رتبه ---
+        
         let xpEarned = alreadyCompletedBefore ? 15 : 60; // اولین بار پاداش بیشتری داره
         if (mistakes === 0) xpEarned += 20; // پاداش بی‌خطا
         if (secondsElapsed < gameLevels[currentLevelIndex].timeLimit / 2) xpEarned += 15; // پاداش سرعت
         addXP(xpEarned);
 
-        // --- بخش بررسی افتخارات ---
+        
         unlockAchievement('first_step'); 
 
         if (mistakes === 0) {
@@ -1875,7 +1880,7 @@ function goToLogin() {
         }
         // -------------------------------------------------------------
 
-        // ارسال رکوردها به دیتابیس ابری
+        
         saveRecordToCloud(gameLevels[currentLevelIndex].title, secondsElapsed, mistakes, correctPlacements);
 
         setTimeout(() => {
@@ -1958,5 +1963,5 @@ setTimeout(() => {
     console.log("%cبه دنبال چه میگردی؟", "color: #30D993; font-size: 16px; font-weight: bold;");
 }, 2000);
 
-// اگه کاربر قبلاً وارد شده بود (رفرش صفحه، برگشت از لیدربورد، یا باز کردن دوباره‌ی مرورگر)، مستقیم برش‌گردون تو بازی
+
 tryRestoreSession();
